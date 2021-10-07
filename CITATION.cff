@@ -16,4 +16,10 @@ preferred-citation:
     given-names: "Marcel"
   - family-names: "Scherp"
     given-names: "Ansgar"
-  title: "Lifelong learning on evolving graphs under the constraints of imbal
+  title: "Lifelong learning on evolving graphs under the constraints of imbalanced classes and new classes"
+  doi: 10.1016/j.neunet.2023.04.022
+  year: 2023
+  journal: "Neural Networks"
+  volume: 164
+  start: 156
+  
