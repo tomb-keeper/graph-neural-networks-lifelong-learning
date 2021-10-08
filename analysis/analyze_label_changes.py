@@ -9,4 +9,6 @@ def resolve_classes(class_set, index2class):
 
 
 def main():
-    parser = argparse.Ar
+    parser = argparse.ArgumentParser()
+    # parser.add_argument('path', help="Path to graph dataset")
+    parser.add_argument('time', help="Path to numpy data file with task ids
