@@ -13,4 +13,6 @@ def main():
     # parser.add_argument('path', help="Path to graph dataset")
     parser.add_argument('time', help="Path to numpy data file with task ids")
     parser.add_argument('labels', help="Path to numpy data file with labels")
-    parser.add_argument('--label2index', help="Path to json file containing th
+    parser.add_argument('--label2index', help="Path to json file containing the mapping from label to index")
+    parser.add_argument('--start', type=int, help="Start year")
+    parser.add_argument('--end', type=int, help=
