@@ -25,3 +25,8 @@ def main():
           'year': np.load(args.time),
          'label': np.load(args.labels)
         }
+    )
+    t_start = args.start if args.start is not None else data.year.min()
+    t_end = args.end if args.end is not None else data.year.max()
+
+    if args.
