@@ -15,4 +15,9 @@ def main():
     parser.add_argument('labels', help="Path to numpy data file with labels")
     parser.add_argument('--label2index', help="Path to json file containing the mapping from label to index")
     parser.add_argument('--start', type=int, help="Start year")
-    parser.add_argument('--end', type=int, help=
+    parser.add_argument('--end', type=int, help="Start year")
+
+    args = parser.parse_args()
+    data = pd.DataFrame(
+        {
+          # 'year': np.load(osp.join(args.path, 't.npy'))
