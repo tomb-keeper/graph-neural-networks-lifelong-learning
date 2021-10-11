@@ -34,4 +34,8 @@ def main():
         with open(osp.join(args.path, 'label2index.json'), 'r') as fh:
             label2index = json.load(fh)
 
+        index2label = {v: k for k, v in label2index.items()}
+        print(label2index.keys())
     
+    classes = set(data[data.year == t_start].label)
+    print("
