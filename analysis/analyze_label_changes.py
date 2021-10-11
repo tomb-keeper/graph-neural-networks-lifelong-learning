@@ -29,4 +29,9 @@ def main():
     t_start = args.start if args.start is not None else data.year.min()
     t_end = args.end if args.end is not None else data.year.max()
 
-    if args.
+    if args.label2index is not None:
+
+        with open(osp.join(args.path, 'label2index.json'), 'r') as fh:
+            label2index = json.load(fh)
+
+    
