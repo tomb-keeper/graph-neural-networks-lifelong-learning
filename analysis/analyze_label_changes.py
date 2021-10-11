@@ -38,4 +38,9 @@ def main():
         print(label2index.keys())
     
     classes = set(data[data.year == t_start].label)
-    print("
+    print("~ Year:", t_start, '~')
+    print("#cls:", len(classes))
+    n_add_total = 0
+    n_rem_total = 0
+    classes_total = classes
+    for t in range(t_start+
