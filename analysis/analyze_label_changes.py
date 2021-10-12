@@ -43,4 +43,8 @@ def main():
     n_add_total = 0
     n_rem_total = 0
     classes_total = classes
-    for t in range(t_start+
+    for t in range(t_start+1, t_end+1):
+        print("~ Year:", t, '~')
+        next_classes = set(data[data.year == t].label)
+        add = next_classes - classes
+        rem 
