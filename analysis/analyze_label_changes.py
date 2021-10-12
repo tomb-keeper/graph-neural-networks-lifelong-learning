@@ -47,4 +47,6 @@ def main():
         print("~ Year:", t, '~')
         next_classes = set(data[data.year == t].label)
         add = next_classes - classes
-        rem 
+        rem = classes - next_classes
+        print("add:", " | ".join(resolve_classes(add, index2label)))
+        print("rem:", " | ".j
