@@ -49,4 +49,8 @@ def main():
         add = next_classes - classes
         rem = classes - next_classes
         print("add:", " | ".join(resolve_classes(add, index2label)))
-        print("rem:", " | ".j
+        print("rem:", " | ".join(resolve_classes(rem, index2label)))
+        n_add = len(add)
+        n_rem = len(rem)
+        print("#cls:", len(next_classes))
+        print("#ad
