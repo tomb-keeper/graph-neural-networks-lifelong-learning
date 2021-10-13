@@ -53,4 +53,9 @@ def main():
         n_add = len(add)
         n_rem = len(rem)
         print("#cls:", len(next_classes))
-        print("#ad
+        print("#add:", n_add)
+        print("#rem:", n_rem)
+        n_add_total += n_add
+        n_rem_total += n_rem
+        classes = next_classes
+      
