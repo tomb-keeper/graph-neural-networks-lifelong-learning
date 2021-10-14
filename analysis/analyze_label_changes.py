@@ -58,4 +58,10 @@ def main():
         n_add_total += n_add
         n_rem_total += n_rem
         classes = next_classes
-      
+        classes_total |= next_classes
+
+
+    print("~~~ Total ~~~")
+    print("#add:", n_add_total)
+    print("#rem:", n_rem_total)
+    print("#diff:", n_add_total + n_
