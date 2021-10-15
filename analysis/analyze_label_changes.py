@@ -64,4 +64,9 @@ def main():
     print("~~~ Total ~~~")
     print("#add:", n_add_total)
     print("#rem:", n_rem_total)
-    print("#diff:", n_add_total + n_
+    print("#diff:", n_add_total + n_rem_total)
+    print("#cls:", len(classes_total))
+
+
+if __name__ == "__main__":
+    main()
