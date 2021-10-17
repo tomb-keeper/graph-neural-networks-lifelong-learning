@@ -19,4 +19,7 @@ def main():
          'label': np.load(osp.join(args.path, 'y.npy'))
         }
     )
-    value_c
+    value_counts = data.label.value_counts()
+    # print("Label value counts:\n", value_counts)
+    print("Entropy (base e):", stats.entropy(value_counts))
+    h = stats.entro
