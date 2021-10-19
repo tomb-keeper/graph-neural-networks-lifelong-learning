@@ -25,4 +25,7 @@ def main():
     h = stats.entropy(value_counts, base=2)
     print("Entropy (base 2):", h)
     num_classes = len(data.label.unique())
-    print(f"Entropy (base {num_classes}):", stats.entrop
+    print(f"Entropy (base {num_classes}):", stats.entropy(value_counts, base=num_classes))
+
+    num_classes = len(data.label.unique())
+    h_max = stats.entropy(np.repeat(1, num_classes), base=
