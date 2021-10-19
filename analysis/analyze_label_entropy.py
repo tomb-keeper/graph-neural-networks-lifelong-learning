@@ -22,4 +22,7 @@ def main():
     value_counts = data.label.value_counts()
     # print("Label value counts:\n", value_counts)
     print("Entropy (base e):", stats.entropy(value_counts))
-    h = stats.entro
+    h = stats.entropy(value_counts, base=2)
+    print("Entropy (base 2):", h)
+    num_classes = len(data.label.unique())
+    print(f"Entropy (base {num_classes}):", stats.entrop
