@@ -28,4 +28,10 @@ def main():
     print(f"Entropy (base {num_classes}):", stats.entropy(value_counts, base=num_classes))
 
     num_classes = len(data.label.unique())
-    h_max = stats.entropy(np.repeat(1, num_classes), base=
+    h_max = stats.entropy(np.repeat(1, num_classes), base=2)
+    print("H_max =", h_max)
+    print("Entropy (base 2) normalized by H_max", h / h_max)
+
+
+if __name__ == '__main__':
+    main()
