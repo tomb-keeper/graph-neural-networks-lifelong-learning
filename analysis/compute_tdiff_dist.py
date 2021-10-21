@@ -12,4 +12,16 @@ parser.add_argument('--max-hops', type=int, default=2)
 parser.add_argument('--save', default=None)
 args = parser.parse_args()
 
-g, __, __, ts = load_d
+g, __, __, ts = load_data(args.data_path)
+
+
+ts = np.asarray(ts)
+N = ts.size
+
+g = dgl.transform.remove_self_loop(g)
+
+tdiff_dist = []
+
+# ts_uniq = np.unique(ts)
+
+for u 
