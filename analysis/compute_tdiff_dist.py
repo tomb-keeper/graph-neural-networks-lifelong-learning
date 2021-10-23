@@ -24,4 +24,8 @@ tdiff_dist = []
 
 # ts_uniq = np.unique(ts)
 
-for u 
+for u in tqdm(g.nodes(), desc="BFS"):
+    # nodes_t = np.arange(N)[ts == t]
+    t = ts[u]
+    # print(f"Node: {u}, t = {t}")
+    bfs_gen = dgl.traversal
