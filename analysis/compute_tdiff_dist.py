@@ -28,4 +28,7 @@ for u in tqdm(g.nodes(), desc="BFS"):
     # nodes_t = np.arange(N)[ts == t]
     t = ts[u]
     # print(f"Node: {u}, t = {t}")
-    bfs_gen = dgl.traversal
+    bfs_gen = dgl.traversal.bfs_nodes_generator(g, u)
+    for hop, neighbors in enumerate(bfs_gen):
+        neighbors = neighbors.numpy()
+        # print(f"Hop {ho
