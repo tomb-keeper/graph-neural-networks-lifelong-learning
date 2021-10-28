@@ -31,4 +31,8 @@ for u in tqdm(g.nodes(), desc="BFS"):
     bfs_gen = dgl.traversal.bfs_nodes_generator(g, u)
     for hop, neighbors in enumerate(bfs_gen):
         neighbors = neighbors.numpy()
-        # print(f"Hop {ho
+        # print(f"Hop {hop}:", neighbors)
+        # if hop == 0:
+        #     continue
+        tdiff = t - ts[neighbors]  # Compute difference in timsteps
+        tdi
