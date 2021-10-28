@@ -46,4 +46,7 @@ tdiff_dist = pd.Series(tdiff_dist)
 print('=' * 32)
 print('=' * 4, args.data_path, '=' * 4)
 print(tdiff_dist.describe())
-print('
+print('=' * 32)
+
+if args.save:
+    np.save(args.save, tdiff_dist.values)
