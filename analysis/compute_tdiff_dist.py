@@ -40,4 +40,10 @@ for u in tqdm(g.nodes(), desc="BFS"):
         tdiff_dist.extend(list(tdiff))
 
         if hop == args.max_hops:
-    
+            break
+
+tdiff_dist = pd.Series(tdiff_dist)
+print('=' * 32)
+print('=' * 4, args.data_path, '=' * 4)
+print(tdiff_dist.describe())
+print('
