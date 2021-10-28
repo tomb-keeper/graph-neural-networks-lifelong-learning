@@ -35,4 +35,9 @@ for u in tqdm(g.nodes(), desc="BFS"):
         # if hop == 0:
         #     continue
         tdiff = t - ts[neighbors]  # Compute difference in timsteps
-        tdi
+        tdiff = tdiff[tdiff >= 0]  # Only consider same or past timesteps
+
+        tdiff_dist.extend(list(tdiff))
+
+        if hop == args.max_hops:
+    
