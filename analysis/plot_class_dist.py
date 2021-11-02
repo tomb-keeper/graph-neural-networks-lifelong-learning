@@ -16,4 +16,10 @@ def main():
     parser.add_argument(
         "--outfile",
         help="Path to 70company-like dataset",
- 
+        default="./figures/current-output-debug.png",
+    )
+
+    args = parser.parse_args()
+    data = pd.DataFrame(
+        {
+            "ye
