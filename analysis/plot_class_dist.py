@@ -12,4 +12,8 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser()
-    parser
+    parser.add_argument("path", help="Path to 70company-like dataset")
+    parser.add_argument(
+        "--outfile",
+        help="Path to 70company-like dataset",
+ 
