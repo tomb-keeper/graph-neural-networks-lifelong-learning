@@ -22,4 +22,9 @@ def main():
     args = parser.parse_args()
     data = pd.DataFrame(
         {
-            "ye
+            "year": np.load(osp.join(args.path, "t.npy")),
+            "label": np.load(osp.join(args.path, "y.npy")),
+        }
+    )
+
+    print("Label v
