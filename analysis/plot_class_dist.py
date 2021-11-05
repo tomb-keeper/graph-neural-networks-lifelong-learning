@@ -44,4 +44,5 @@ def main():
     plt.savefig(args.outfile)
 
 
-if __name
+if __name__ == "__main__":
+    main()
