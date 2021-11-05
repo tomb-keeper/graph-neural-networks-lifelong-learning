@@ -36,4 +36,12 @@ def main():
     print(f"Plotting to {args.outfile}")
 
     for idx, label in enumerate(theplot.xaxis.get_ticklabels()):
-        #        if
+        #        if idx % 5 != 0:
+        label.set_visible(False)
+
+    plt.gca().legend().remove()
+    plt.tight_layout()
+    plt.savefig(args.outfile)
+
+
+if __name
