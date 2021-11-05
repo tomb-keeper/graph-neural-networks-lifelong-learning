@@ -31,4 +31,9 @@ def main():
 
     plt.figure(1)
     theplot = sns.countplot(
-        x="label", data=data, log=False, order=data["l
+        x="label", data=data, log=False, order=data["label"].value_counts().index
+    )
+    print(f"Plotting to {args.outfile}")
+
+    for idx, label in enumerate(theplot.xaxis.get_ticklabels()):
+        #        if
