@@ -27,4 +27,8 @@ def main():
         }
     )
 
-    print("Label v
+    print("Label value counts:\n", data.label.value_counts())
+
+    plt.figure(1)
+    theplot = sns.countplot(
+        x="label", data=data, log=False, order=data["l
