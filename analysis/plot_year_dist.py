@@ -21,4 +21,10 @@ def main():
     args = parser.parse_args()
     data = pd.DataFrame(
         {
-            "year": np.load(osp.join(args.path, "t.n
+            "year": np.load(osp.join(args.path, "t.npy")),
+            "label": np.load(osp.join(args.path, "y.npy")),
+        }
+    )
+
+    print(data.year.describe())
+    # print("Year value counts:\n", d
