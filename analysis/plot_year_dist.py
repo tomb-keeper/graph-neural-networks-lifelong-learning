@@ -15,4 +15,10 @@ def main():
     parser.add_argument(
         "--outfile",
         help="Path to 70company-like dataset",
-        default="./new-fi
+        default="./new-figures/debug.png",
+    )
+
+    args = parser.parse_args()
+    data = pd.DataFrame(
+        {
+            "year": np.load(osp.join(args.path, "t.n
