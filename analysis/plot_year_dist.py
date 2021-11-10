@@ -27,4 +27,8 @@ def main():
     )
 
     print(data.year.describe())
-    # print("Year value counts:\n", d
+    # print("Year value counts:\n", data.year.value_counts())
+
+    plt.figure(1)
+    # sns.countplot(y="year", hue="label", data=data, log=True)
+    theplot = sns.countplot(y="year", 
