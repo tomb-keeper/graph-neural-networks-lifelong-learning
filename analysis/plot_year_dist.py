@@ -31,4 +31,7 @@ def main():
 
     plt.figure(1)
     # sns.countplot(y="year", hue="label", data=data, log=True)
-    theplot = sns.countplot(y="year", 
+    theplot = sns.countplot(y="year", data=data, log=True)
+    for label in theplot.yaxis.get_ticklabels():
+        actual_label = label.get_text()
+        if not (actual_label.endswith("0") or actual
