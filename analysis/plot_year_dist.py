@@ -34,4 +34,8 @@ def main():
     theplot = sns.countplot(y="year", data=data, log=True)
     for label in theplot.yaxis.get_ticklabels():
         actual_label = label.get_text()
-        if not (actual_label.endswith("0") or actual
+        if not (actual_label.endswith("0") or actual_label.endswith("5")):
+            label.set_visible(False)
+    print(f"Plotting to {args.outfile}")
+    plt.gca().legend().remove()
+    plt.tight_layou
