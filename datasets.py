@@ -17,4 +17,9 @@ import gc
 
 # Globals
 CACHE_DIR = "./cache"
-MEMORY = 
+MEMORY = Memory(CACHE_DIR, verbose=2)
+
+
+def make_geometric_dataset(edge_index, features, labels, edge_attr=None):
+    # One data object is one graph
+   
