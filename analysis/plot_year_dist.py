@@ -38,4 +38,9 @@ def main():
             label.set_visible(False)
     print(f"Plotting to {args.outfile}")
     plt.gca().legend().remove()
-    plt.tight_layou
+    plt.tight_layout()
+    plt.savefig(args.outfile)
+
+
+if __name__ == "__main__":
+    main()
