@@ -10,4 +10,11 @@ import numpy as np
 import pandas as pd
 import torch
 from joblib import Memory
-from 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from tqdm import tqdm
+import os
+import gc
+
+# Globals
+CACHE_DIR = "./cache"
+MEMORY = 
