@@ -25,4 +25,8 @@ def make_geometric_dataset(edge_index, features, labels, edge_attr=None):
     import torch_geometric as tg
 
     data = tg.data.Data(
-        x=features, edge_index=edge_index, edge_attr=edge_attr, y=label
+        x=features, edge_index=edge_index, edge_attr=edge_attr, y=labels
+    )
+    # Just as in regular PyTorch, you do not have to use datasets, e.g., when
+    # you want to create synthetic data on the fly without saving them
+    # explici
