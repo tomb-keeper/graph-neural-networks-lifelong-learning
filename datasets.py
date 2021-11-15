@@ -22,4 +22,7 @@ MEMORY = Memory(CACHE_DIR, verbose=2)
 
 def make_geometric_dataset(edge_index, features, labels, edge_attr=None):
     # One data object is one graph
-   
+    import torch_geometric as tg
+
+    data = tg.data.Data(
+        x=features, edge_index=edge_index, edge_attr=edge_attr, y=label
