@@ -32,4 +32,11 @@ def make_geometric_dataset(edge_index, features, labels, edge_attr=None):
     # explicitly to disk. In this case, simply pass a regular python list
     # holding torch_geometric.data.Data objects
     # Source:
-    # https://pytorch-geometric.readthed
+    # https://pytorch-geometric.readthedocs.io/en/latest/notes/create_dataset.html
+    return [data]
+
+
+@MEMORY.cache
+def load_data(path, backend="dgl", format="tuple"):
+    if backend == "dgl":
+    
