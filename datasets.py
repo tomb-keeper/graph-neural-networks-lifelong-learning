@@ -29,4 +29,7 @@ def make_geometric_dataset(edge_index, features, labels, edge_attr=None):
     )
     # Just as in regular PyTorch, you do not have to use datasets, e.g., when
     # you want to create synthetic data on the fly without saving them
-    # explici
+    # explicitly to disk. In this case, simply pass a regular python list
+    # holding torch_geometric.data.Data objects
+    # Source:
+    # https://pytorch-geometric.readthed
