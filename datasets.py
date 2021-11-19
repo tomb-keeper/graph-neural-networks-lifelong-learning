@@ -39,4 +39,7 @@ def make_geometric_dataset(edge_index, features, labels, edge_attr=None):
 @MEMORY.cache
 def load_data(path, backend="dgl", format="tuple"):
     if backend == "dgl":
-    
+        try:
+            print("Trying to load dgl graph directly")
+            glist, __ = load_graphs(osp.join(path, "g.bin"))
+            g = glist[0]
