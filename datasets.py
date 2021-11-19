@@ -43,3 +43,8 @@ def load_data(path, backend="dgl", format="tuple"):
             print("Trying to load dgl graph directly")
             glist, __ = load_graphs(osp.join(path, "g.bin"))
             g = glist[0]
+            print("Success")
+        except DGLError as e:
+            print("File not found", e)
+            print("Loading nx graph")
+         
