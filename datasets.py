@@ -47,4 +47,6 @@ def load_data(path, backend="dgl", format="tuple"):
         except DGLError as e:
             print("File not found", e)
             print("Loading nx graph")
-         
+            nx_graph = nx.read_adjlist(osp.join(path, "adjlist.txt"), nodetype=int)
+            print("Type:", type(nx_graph))
+            g = dgl.f
