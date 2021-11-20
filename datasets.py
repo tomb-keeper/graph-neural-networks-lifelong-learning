@@ -49,4 +49,7 @@ def load_data(path, backend="dgl", format="tuple"):
             print("Loading nx graph")
             nx_graph = nx.read_adjlist(osp.join(path, "adjlist.txt"), nodetype=int)
             print("Type:", type(nx_graph))
-            g = dgl.f
+            g = dgl.from_networkx(nx_graph)
+        N = g.number_of_nodes()
+        X = np.load(osp.join(path, "X.npy"))
+        y = np.load(osp.join(path,
