@@ -52,4 +52,9 @@ def load_data(path, backend="dgl", format="tuple"):
             g = dgl.from_networkx(nx_graph)
         N = g.number_of_nodes()
         X = np.load(osp.join(path, "X.npy"))
-        y = np.load(osp.join(path,
+        y = np.load(osp.join(path, "y.npy"))
+        t = np.load(osp.join(path, "t.npy"))
+        assert X.shape[0] == N
+        assert y.size == N
+        assert t.size == N
+        
