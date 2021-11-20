@@ -57,4 +57,9 @@ def load_data(path, backend="dgl", format="tuple"):
         assert X.shape[0] == N
         assert y.size == N
         assert t.size == N
-        
+        return g, X, y, t
+    elif backend == "geometric":
+        import torch_geometric as tg
+
+        # DONE test this!
+        nx_graph = nx.read_adjlist(osp
