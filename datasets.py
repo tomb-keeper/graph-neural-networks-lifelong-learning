@@ -62,4 +62,7 @@ def load_data(path, backend="dgl", format="tuple"):
         import torch_geometric as tg
 
         # DONE test this!
-        nx_graph = nx.read_adjlist(osp
+        nx_graph = nx.read_adjlist(osp.join(path, "adjlist.txt"), nodetype=int)
+        X = np.load(osp.join(path, "X.npy"))
+        y = np.load(osp.join(path, "y.npy"))
+        t = np.load(osp.join(
