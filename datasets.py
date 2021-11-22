@@ -65,4 +65,7 @@ def load_data(path, backend="dgl", format="tuple"):
         nx_graph = nx.read_adjlist(osp.join(path, "adjlist.txt"), nodetype=int)
         X = np.load(osp.join(path, "X.npy"))
         y = np.load(osp.join(path, "y.npy"))
-        t = np.load(osp.join(
+        t = np.load(osp.join(path, "t.npy"))
+        print("Type:", type(nx_graph))
+        attr_dict = {i: {"X": X[i], "y": y[i], "t": t[i]} for i in range(X.shape[0])}
+        pri
