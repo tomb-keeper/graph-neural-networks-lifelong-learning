@@ -73,4 +73,8 @@ def load_data(path, backend="dgl", format="tuple"):
         print("attributes set!")
         del attr_dict
         gc.collect()
-        
+        g = tg.utils.from_networkx(nx_graph)
+        del nx_graph
+        if format == "tuple":
+            return g.edge_index, g.X, g.y, g.t
+        else:
