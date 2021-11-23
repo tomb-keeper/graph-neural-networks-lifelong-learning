@@ -68,4 +68,9 @@ def load_data(path, backend="dgl", format="tuple"):
         t = np.load(osp.join(path, "t.npy"))
         print("Type:", type(nx_graph))
         attr_dict = {i: {"X": X[i], "y": y[i], "t": t[i]} for i in range(X.shape[0])}
-        pri
+        print("attr_dict loaded!")
+        nx.set_node_attributes(nx_graph, attr_dict)
+        print("attributes set!")
+        del attr_dict
+        gc.collect()
+        
