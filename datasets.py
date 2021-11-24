@@ -78,3 +78,11 @@ def load_data(path, backend="dgl", format="tuple"):
         if format == "tuple":
             return g.edge_index, g.X, g.y, g.t
         else:
+            g.x = g.X
+            return g
+
+    else:
+        raise ValueError("Unknown backend: " + backend)
+
+
+def load_70companies_datafra
