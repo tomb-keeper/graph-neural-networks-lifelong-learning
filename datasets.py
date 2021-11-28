@@ -85,4 +85,11 @@ def load_data(path, backend="dgl", format="tuple"):
         raise ValueError("Unknown backend: " + backend)
 
 
-def load_70companies_datafra
+def load_70companies_dataframe(path, limit=None):
+    """Loads the 70companies dataset"""
+    df = pd.read_csv(path, nrows=limit)
+    return df
+
+
+@MEMORY.cache
+def load_70compan
