@@ -92,4 +92,6 @@ def load_70companies_dataframe(path, limit=None):
 
 
 @MEMORY.cache
-def load_70compan
+def load_70companies_nxgraph(path, with_features=True, vocab_size=None, limit=None):
+    df = load_70companies_dataframe(path, limit=limit)
+    df.reset_index(inplace=Tru
