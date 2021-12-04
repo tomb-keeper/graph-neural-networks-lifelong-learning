@@ -94,4 +94,10 @@ def load_70companies_dataframe(path, limit=None):
 @MEMORY.cache
 def load_70companies_nxgraph(path, with_features=True, vocab_size=None, limit=None):
     df = load_70companies_dataframe(path, limit=limit)
-    df.reset_index(inplace=Tru
+    df.reset_index(inplace=True)
+
+    print("Creating graph")
+    g = nx.Graph()
+    g.add_nodes_from(range(len(df)))
+    for journal, group in df.groupby("issn", sort=False):
+        grp
