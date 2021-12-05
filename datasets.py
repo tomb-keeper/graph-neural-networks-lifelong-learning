@@ -103,4 +103,8 @@ def load_70companies_nxgraph(path, with_features=True, vocab_size=None, limit=No
         grp_paper_ids = group.index.values
         print(len(grp_paper_ids), "papers in", journal)
         for current in grp_paper_ids:
-            # For 
+            # For each paper in group
+            # add edges to all other papers
+            g.add_edges_from((current, other) for other in grp_paper_ids)
+
+    pr
