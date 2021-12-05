@@ -100,4 +100,7 @@ def load_70companies_nxgraph(path, with_features=True, vocab_size=None, limit=No
     g = nx.Graph()
     g.add_nodes_from(range(len(df)))
     for journal, group in df.groupby("issn", sort=False):
-        grp
+        grp_paper_ids = group.index.values
+        print(len(grp_paper_ids), "papers in", journal)
+        for current in grp_paper_ids:
+            # For 
