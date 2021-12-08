@@ -107,4 +107,8 @@ def load_70companies_nxgraph(path, with_features=True, vocab_size=None, limit=No
             # add edges to all other papers
             g.add_edges_from((current, other) for other in grp_paper_ids)
 
-    pr
+    print("70 Companies dataset:")
+    print("\tNum nodes:", g.number_of_nodes())
+    print("\tNum edges:", g.number_of_edges())
+
+    company2label
