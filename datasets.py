@@ -111,4 +111,6 @@ def load_70companies_nxgraph(path, with_features=True, vocab_size=None, limit=No
     print("\tNum nodes:", g.number_of_nodes())
     print("\tNum edges:", g.number_of_edges())
 
-    company2label
+    company2label = {company: i for i, company in enumerate(df.company.unique())}
+    labels = [company2label[c] for c in df.company.values]
+    print("
