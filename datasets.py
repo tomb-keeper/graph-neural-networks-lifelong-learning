@@ -113,4 +113,9 @@ def load_70companies_nxgraph(path, with_features=True, vocab_size=None, limit=No
 
     company2label = {company: i for i, company in enumerate(df.company.unique())}
     labels = [company2label[c] for c in df.company.values]
-    print("
+    print("\tNum labels:", len(company2label))
+
+    if not with_features:
+        return g, labels, df.year.values, len(company2label)
+
+    tfidf = 
