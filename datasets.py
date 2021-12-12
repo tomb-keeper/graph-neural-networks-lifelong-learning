@@ -120,4 +120,10 @@ def load_70companies_nxgraph(path, with_features=True, vocab_size=None, limit=No
 
     tfidf = TfidfVectorizer(stop_words="english", max_features=vocab_size)
     features = tfidf.fit_transform(df.title.values)
-    print("\tNum feats:", feat
+    print("\tNum feats:", features.shape[1])
+
+    return g, features, labels, df.year.values, len(company2label)
+
+
+@MEMORY.cache
+def load_70companies_dglgraph(csvfi
