@@ -126,4 +126,8 @@ def load_70companies_nxgraph(path, with_features=True, vocab_size=None, limit=No
 
 
 @MEMORY.cache
-def load_70companies_dglgraph(csvfi
+def load_70companies_dglgraph(csvfile, vocab_size=None, limit=None):
+    df = load_70companies_dataframe(csvfile, limit=limit)
+    graph = dgl.DGLGraph()
+
+    years = torch.LongTenso
