@@ -135,4 +135,5 @@ def load_70companies_dglgraph(csvfile, vocab_size=None, limit=None):
     tfidf = TfidfVectorizer(stop_words="english", max_features=vocab_size)
     features = tfidf.fit_transform(df.title.values)
 
-   
+    company2label = {company: i for i, company in enumerate(df.company.unique())}
+    labels = torch.LongTensor([company2label[c] for c in df.company.values]
