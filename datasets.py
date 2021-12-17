@@ -136,4 +136,10 @@ def load_70companies_dglgraph(csvfile, vocab_size=None, limit=None):
     features = tfidf.fit_transform(df.title.values)
 
     company2label = {company: i for i, company in enumerate(df.company.unique())}
-    labels = torch.LongTensor([company2label[c] for c in df.company.values]
+    labels = torch.LongTensor([company2label[c] for c in df.company.values])
+
+    # nodes
+    graph.add_nodes(len(df))
+    # edges
+    for journal, group in df.groupby("issn", sort=False):
+        grp_paper_ids = group.index.values
