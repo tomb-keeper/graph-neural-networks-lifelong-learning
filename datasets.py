@@ -143,3 +143,7 @@ def load_70companies_dglgraph(csvfile, vocab_size=None, limit=None):
     # edges
     for journal, group in df.groupby("issn", sort=False):
         grp_paper_ids = group.index.values
+        print(len(grp_paper_ids), "papers in", journal)
+        for p in grp_paper_ids:
+            # For each paper in group
+           
