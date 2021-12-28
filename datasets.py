@@ -154,3 +154,5 @@ def load_70companies_dglgraph(csvfile, vocab_size=None, limit=None):
     print("\tNum edges:", graph.number_of_edges())
     print("\tNum feats:", features.shape[1])
     print("\tNum labels:", len(company2label))
+
+    return graph, features, labels, years, len(company2label)
