@@ -88,3 +88,61 @@ def drift_magnitude_per_time(time, labels, t_start=None, history=None, cumulativ
         else:
             # Use given history to select prev labels
             previous_labels = labels[(time < eval_step) & (time >= (eval_step - history))]
+
+        # New data
+        if cumulative:
+            # Add history window also to current labels
+            current_labels = labels[(time <= eval_step) & (time >= (eval_step - history))]
+        else:
+            current_labels = labels[time == eval_step]
+
+        # Count labels
+        previous_unique, previous_counts = np.unique(previous_labels, return_counts=True)
+        current_unique, current_counts = np.unique(current_labels, return_counts=True)
+
+        # Put counts into blank labels array (shapes must match!)
+        pk = np.zeros(num_labels)
+        pk[previous_unique] = previous_counts
+        qk = np.zeros(num_labels)
+        qk[current_unique] = current_counts
+
+        # Compute drift magnitude
+        dm = drift_magnitude(pk, qk, metric=metric)
+        print(eval_step, ',', dm, sep='')
+        drift.append(dm)
+
+    return eval_steps, drift
+
+def main():
+    import argparse
+    import seaborn
+    import matplotlib.pyplot as plt
+    parser = argparse.ArgumentParser()
+    parser.add_argument('time', help="Path to numpy file with times")
+    parser.add_argument('labels', help="Path to numpy file with labels")
+    parser.add_argument('--t_start', default=None, type=int, help="Start time")
+    parser.add_argument('--history', default=None, type=int, help="Sliding window size for previous labels")
+    parser.add_argument('--cumulative', default=False, action='store_true', help="Apply history also to 'right-side'")
+    parser.add_argument('--save_plot', default=None, type=str, help="Path to save plot")
+    parser.add_argument('--info', default=False, action='store_true', help="Print some more info")
+    args = parser.parse_args()
+    verbose = args.info
+
+    time = np.load(args.time)
+    labels = np.load(args.labels)
+    if verbose:
+        print("Time shape", time.shape, "dtype", time.dtype)
+        print("Labels shape", labels.shape, "dtype", labels.dtype)
+
+    x, y = drift_magnitude_per_time(time, labels, t_start=args.t_start, verbose=verbose,
+            history=args.history, cumulative=args.cumulative)
+
+    seaborn.lineplot(x=x,y=y)
+    if args.save_plot:
+        plt.savefig(args.save_plot)
+    else:
+        plt.show()
+
+
+if __name__ == "__main__":
+    main()
