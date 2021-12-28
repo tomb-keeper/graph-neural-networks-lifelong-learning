@@ -146,4 +146,8 @@ def load_70companies_dglgraph(csvfile, vocab_size=None, limit=None):
         print(len(grp_paper_ids), "papers in", journal)
         for p in grp_paper_ids:
             # For each paper in group
-           
+            # add edges to all other papers
+            graph.add_edges(p, grp_paper_ids)
+
+    print("70 Companies dataset:")
+    print("\tNum nodes:", graph.num
