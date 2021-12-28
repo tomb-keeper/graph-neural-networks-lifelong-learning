@@ -150,4 +150,7 @@ def load_70companies_dglgraph(csvfile, vocab_size=None, limit=None):
             graph.add_edges(p, grp_paper_ids)
 
     print("70 Companies dataset:")
-    print("\tNum nodes:", graph.num
+    print("\tNum nodes:", graph.number_of_nodes())
+    print("\tNum edges:", graph.number_of_edges())
+    print("\tNum feats:", features.shape[1])
+    print("\tNum labels:", len(company2label))
