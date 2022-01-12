@@ -6,4 +6,7 @@ ARGS="--start warm --n_layers $NLAYERS --weight_decay 0 --dropout 0.5 --history 
 DATA_ARGS="--data "$DATA" --t_start $YEAR"
 STATIC_MODEL_ARGS="--initial_epochs 400 --annual_epochs 0"
 UPTRAIN_MODEL_ARGS="--initial_epochs 0 --annual_epochs 200"
-OUTFIL
+OUTFILE="results/ablation-hard.csv"
+
+for SEED in 1 2 3 4 5 6 7 8 9 10; do
+  python3 run_experiment.py --seed "$SEED" --model mlp --n_hidden 64 --lr "0.001" $STATIC
