@@ -6,4 +6,9 @@ ARGS="--start warm --n_layers $NLAYERS --weight_decay 0 --dropout 0.5 --history 
 DATA_ARGS="--data "$DATA" --t_start $YEAR"
 STATIC_MODEL_ARGS="--initial_epochs 400 --annual_epochs 0"
 UPTRAIN_MODEL_ARGS="--initial_epochs 0 --annual_epochs 200"
-OUTFILE="result
+OUTFILE="results/ablation-hpopt.csv"
+
+for SEED in 101 102 103; do
+  for LR in "0.0005" "0.001" "0.005" "0.01" "0.05" "0.1"; do
+    # STATIC
+    python3 run_e
