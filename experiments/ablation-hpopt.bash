@@ -12,4 +12,5 @@ for SEED in 101 102 103; do
   for LR in "0.0005" "0.001" "0.005" "0.01" "0.05" "0.1"; do
     # STATIC
     python3 run_experiment.py --seed "$SEED" --model mlp --n_hidden 64 --lr $LR $STATIC_MODEL_ARGS $ARGS $DATA_ARGS --save "$OUTFILE"
-    python3 run_experiment.py --seed 
+    python3 run_experiment.py --seed "$SEED" --model gs-mean --n_hidden 32 --lr $LR $STATIC_MODEL_ARGS $ARGS $DATA_ARGS --save "$OUTFILE"
+    python3 run_experimen
