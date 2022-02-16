@@ -18,4 +18,6 @@ for SEED in 101 102 103; do
     # UPTRAIN
     python3 run_experiment.py --seed "$SEED" --model mlp --n_hidden 64 --lr $LR $UPTRAIN_MODEL_ARGS $ARGS $DATA_ARGS --save "$OUTFILE"
     python3 run_experiment.py --seed "$SEED" --model gs-mean --n_hidden 32 --lr $LR $UPTRAIN_MODEL_ARGS $ARGS $DATA_ARGS --save "$OUTFILE"
-    python3 run_experiment.
+    python3 run_experiment.py --seed "$SEED" --model gat --n_hidden 64 --lr $LR $UPTRAIN_MODEL_ARGS $ARGS $DATA_ARGS --save "$OUTFILE"
+  done
+done
