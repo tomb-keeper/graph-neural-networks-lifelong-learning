@@ -32,4 +32,5 @@ for SEED in 1 2 3 4 5 6 7 8 9 10; do
   # HISTORY 25 
   python3 run_experiment_new.py --seed "$SEED" --model mlp --n_hidden 64 --start cold --lr "0.005" --history 25 $ARGS $PRETRAIN_ARGS --dataset "$DATA" --save "$OUTFILE"
   python3 run_experiment_new.py --seed "$SEED" --model mlp --n_hidden 64 --start warm --lr "0.001" --history 25 $ARGS $PRETRAIN_ARGS --dataset "$DATA" --save "$OUTFILE"
-  python3 run_experiment_new.py --seed "$SEED" --model gs-mean --n_hidden 32 --start cold --lr "0.01" --history 25 $ARGS $PRETRAI
+  python3 run_experiment_new.py --seed "$SEED" --model gs-mean --n_hidden 32 --start cold --lr "0.01" --history 25 $ARGS $PRETRAIN_ARGS --dataset "$DATA" --save "$OUTFILE"
+  python3 run_experiment_new.py --seed "$SEED" --model gs-mean --n_hidden 32 --start warm --lr "0.00
