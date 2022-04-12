@@ -8,4 +8,6 @@ PRETRAIN_ARGS="--t_start $YEAR --initial_epochs $INITIAL_EPOCHS"
 OUTFILE="results/gat-gs-mlp-hpopt.csv"
 
 for SEED in 101 102 103; do
-  for LR in "0.1" "0.05" "0.01" "0.005" "0.001" "0.0005";
+  for LR in "0.1" "0.05" "0.01" "0.005" "0.001" "0.0005"; do
+    for HISTORY in 1 3 6 25; do
+      python3 run_experiment.py --seed "$SEED" --model mlp --n_hidden 64 --start warm --lr $LR --history $HISTORY
