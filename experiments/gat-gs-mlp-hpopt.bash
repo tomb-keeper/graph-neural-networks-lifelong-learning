@@ -14,4 +14,5 @@ for SEED in 101 102 103; do
       python3 run_experiment.py --seed "$SEED" --model mlp --n_hidden 64 --start cold --lr $LR --history $HISTORY $ARGS $PRETRAIN_ARGS --dataset "$DATA" --save "$OUTFILE"
       python3 run_experiment.py --seed "$SEED" --model gs-mean --n_hidden 32 --start warm --lr $LR --history $HISTORY $ARGS $PRETRAIN_ARGS --dataset "$DATA" --save "$OUTFILE"
       python3 run_experiment.py --seed "$SEED" --model gs-mean --n_hidden 32 --start cold --lr $LR --history $HISTORY $ARGS $PRETRAIN_ARGS --dataset "$DATA" --save "$OUTFILE"
-      python3 run_experiment.py --seed "$SEED" --model gat --n_hidden 64 --start warm --lr $LR --history $HISTORY $ARGS $PRET
+      python3 run_experiment.py --seed "$SEED" --model gat --n_hidden 64 --start warm --lr $LR --history $HISTORY $ARGS $PRETRAIN_ARGS --dataset "$DATA" --save "$OUTFILE"
+      python3 run_experiment.py --seed "$SEED" --model gat --n_hidden 64 --start cold --lr $LR --history $HISTOR
