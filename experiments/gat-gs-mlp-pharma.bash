@@ -17,4 +17,5 @@ for SEED in 1 2 3 4 5 6 7 8 9 10; do
   python3 run_experiment.py --seed "$SEED" --model gat --n_hidden 64 --start warm --lr "0.001" --history 1 $ARGS $PRETRAIN_ARGS --dataset "$DATA" --save "$OUTFILE"
   # HISTORY 4
   python3 run_experiment.py --seed "$SEED" --model mlp --n_hidden 64 --start cold --lr "0.001" --history 4 $ARGS $PRETRAIN_ARGS --dataset "$DATA" --save "$OUTFILE"
-  python3 run_experiment.py --se
+  python3 run_experiment.py --seed "$SEED" --model mlp --n_hidden 64 --start warm --lr "0.001" --history 4 $ARGS $PRETRAIN_ARGS --dataset "$DATA" --save "$OUTFILE"
+  pyth
