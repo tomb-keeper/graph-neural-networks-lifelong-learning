@@ -1,0 +1,7 @@
+DATA="dblp-easy"
+YEAR=2004
+INITIAL_EPOCHS=200
+ANNUAL_EPOCHS=200
+NLAYERS=2
+OUTFILE="results/jk-easy.csv"
+ARGS="-
