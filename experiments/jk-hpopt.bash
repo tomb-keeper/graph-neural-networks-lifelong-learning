@@ -15,4 +15,4 @@ for LR in "0.1" "0.05" "0.01" "0.005" "0.001" "0.0005"; do
 	for START in "cold" "warm"; do
 		for HISTORY in 1 3 6 25; do
 			for SEED in 101 102 103; do
-				pyth
+				python3 run_experiment_new.py --history $HISTORY --seed "$SEED" --backend dgl --model jknet-sageconv --n_hidden $HIDDEN --start $START --lr 
