@@ -1,0 +1,7 @@
+DATA="dblp-hard"
+YEAR=2004
+INITIAL_EPOCHS=200
+ANNUAL_EPOCHS=200
+NLAYERS=2
+OUTFILE="results/saint-hard.csv"
+ARGS="--n_layers $NLAYE

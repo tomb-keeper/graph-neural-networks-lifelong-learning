@@ -21,3 +21,6 @@ for SEED in 201 202 203 204 205 206 207 208 209 210; do
   for i in ${!hparams[@]}; do
     echo ${hparams[$i]}
     python3 run_experiment_new.py ${hparams[$i]} --data "$DATA" --inductive --seed "$SEED" --backend geometric --model graphsaint --variant jknet-graphconv --annual_epochs $ANNUAL_EPOCHS $ARGS $PRETRAIN_ARGS --save "$OUTFILE"
+  done
+done
+ 
