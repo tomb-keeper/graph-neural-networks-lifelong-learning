@@ -18,4 +18,5 @@ hparams=("--history 1 --start cold --lr 0.005"
 set -e
 for SEED in 201 202 203 204 205 206 207 208 209 210; do
   for i in ${!hparams[@]}; do
-    echo ${hparams[$
+    echo ${hparams[$i]}
+    python3 run_experiment_new.py ${hparams[$i]} --inductive --seed "$SEED" --backend geometric --model graphsaint --variant jknet-graphconv --a
