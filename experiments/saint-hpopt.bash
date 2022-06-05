@@ -6,4 +6,11 @@ ANNUAL_EPOCHS=200
 NLAYERS=2
 OUTFILE="results/saint-hpopt.csv"
 ARGS="--n_layers $NLAYERS --weight_decay 0 --dropout 0.5  --rescale_lr 1. --rescale_wd 1. --sampling rw --saint_coverage 0"
-PRETRAIN_ARG
+PRETRAIN_ARGS="--t_start $YEAR --initial_epochs $INITIAL_EPOCHS"
+HIDDEN=16
+# Relative batch size
+BATCHSIZE="0.5"
+
+set -e
+
+for LR in "0.1" "0.05" "0.01" "0.005" "0.001" "0.0005"; 
