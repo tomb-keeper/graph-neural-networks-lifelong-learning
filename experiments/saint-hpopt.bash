@@ -17,4 +17,9 @@ for LR in "0.1" "0.05" "0.01" "0.005" "0.001" "0.0005"; do
 	for START in "cold" "warm"; do
 		for HISTORY in 1 3 6 25; do
 			for SEED in 101 102 103; do
-				python3 run_experiment_new.py --inductive --history $HISTORY --batch_size "$BATCHSIZE" --seed "$SEED" --backend geometric --model graphsaint --variant jknet-graphconv --n_hidden $
+				python3 run_experiment_new.py --inductive --history $HISTORY --batch_size "$BATCHSIZE" --seed "$SEED" --backend geometric --model graphsaint --variant jknet-graphconv --n_hidden $HIDDEN --start $START --lr $LR --annual_epochs $ANNUAL_EPOCHS $ARGS $PRETRAIN_ARGS --data "$DATA" --save "$OUTFILE"
+			done
+		done
+	done
+done
+
