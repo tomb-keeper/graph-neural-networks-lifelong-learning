@@ -11,4 +11,7 @@ hparams=(
 	"--history 4 --start cold --lr 0.005 --batch_size 0.5"
 	"--history 8 --start cold --lr 0.005 --batch_size 0.5"
 	"--history 21 --start cold  --lr 0.01 --batch_size 4000"
-	"--history 1 --start warm 
+	"--history 1 --start warm --lr 0.001 --batch_size 0.5"
+	"--history 4 --start warm --lr 0.001 --batch_size 0.5"
+	"--history 8 --start warm --lr 0.001 --batch_size 0.5"
+	"--histo
