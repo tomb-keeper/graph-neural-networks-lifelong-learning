@@ -9,4 +9,6 @@ PRETRAIN_ARGS="--t_start $YEAR --initial_epochs $INITIAL_EPOCHS"
 hparams=(
 	"--history 1 --start cold --lr 0.005 --batch_size 0.5"
 	"--history 4 --start cold --lr 0.005 --batch_size 0.5"
-	"--hist
+	"--history 8 --start cold --lr 0.005 --batch_size 0.5"
+	"--history 21 --start cold  --lr 0.01 --batch_size 4000"
+	"--history 1 --start warm 
