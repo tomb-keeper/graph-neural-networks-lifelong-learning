@@ -21,4 +21,5 @@ set -e
 
 for SEED in 201 202 203 204 205 206 207 208 209 210; do
 	for i in ${!hparams[@]}; do
-		ech
+		echo ${hparams[$i]}
+		python3 run_experiment_new.py ${hparams[$i]} --data "$DATA" --inductive --seed "$SEED" --backend geometric --model graphsaint --variant jk
