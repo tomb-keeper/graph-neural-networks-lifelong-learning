@@ -14,4 +14,11 @@ hparams=(
 	"--history 1 --start warm --lr 0.001 --batch_size 0.5"
 	"--history 4 --start warm --lr 0.001 --batch_size 0.5"
 	"--history 8 --start warm --lr 0.001 --batch_size 0.5"
-	"--histo
+	"--history 21 --start warm --lr 0.005 --batch_size 4000"
+)
+
+set -e
+
+for SEED in 201 202 203 204 205 206 207 208 209 210; do
+	for i in ${!hparams[@]}; do
+		ech
