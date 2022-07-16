@@ -1,0 +1,3 @@
+DATA="dblp-easy"
+YEAR=2004
+INITIAL_EPOCHS
