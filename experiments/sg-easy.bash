@@ -12,4 +12,10 @@ hparams=("--history 1 --start cold --lr 0.005"
             "--history 25 --start cold --lr 0.05"
             "--history 1 --start warm --lr 0.005"
             "--history 3 --start warm --lr 0.005"
-            "--history 6 --start warm -
+            "--history 6 --start warm --lr 0.005"
+            "--history 25 --start warm --lr 0.01")
+
+set -e
+
+for SEED in 201 202 203 204 205 206 207 208 209 210; do
+  for i in ${!hpar
