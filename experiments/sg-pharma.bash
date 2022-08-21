@@ -19,4 +19,5 @@ set -e
 
 for SEED in 201 202 203 204 205 206 207 208 209 210; do
   for i in ${!hparams[@]}; do
-  
+    echo ${hparams[$i]}
+    python3 run_experiment_new.py ${hparams[$i]} --seed "$SEED" --model sgnet --backend dgl --annual_epochs 
