@@ -242,3 +242,92 @@ def make_lifelong_nodeclf_dataset(path, task_ids, x, y,
     print("Creating lifelong node classification dataset")
     backend = _check_graph_args(dgl_graph, edge_index, edge_attr)
     print(f"...using backend: {backend}")
+    num_nodes = x.size(0)
+    print(f"...with {num_nodes} total nodes")
+    t_zero = t_zero if t_zero is not None else t_numpy.min()
+    print(f"...starting at t_0 = {t_zero}")
+    print(f"...accumulating {cumulate} past tasks")
+    uniq_task_ids = np.unique(t_numpy[t_numpy >= t_zero])
+    print(f"...for {len(uniq_task_ids)} tasks")
+
+
+    if subsample_train is not None:
+        print("Subsampling the train set *globally* to avoid inconsistencies across tasks")
+        assert isinstance(subsample_train, float) and subsample_train < 1.0 and subsample_train > 0.0
+        global_train_mask = np.random.random(num_nodes) < subsample_train  # numpy bool
+        global_train_mask = torch.as_tensor(global_train_mask, dtype=torch.bool)
+    else:
+        global_train_mask = None
+
+    os.makedirs(path, exist_ok=True)
+    for i, current in enumerate(tqdm(uniq_task_ids, desc="Preprocessing tasks")):
+        task = make_subgraph_task(
+            task_ids, current, x, y,
+            dgl_graph=dgl_graph,
+            edge_index=edge_index, edge_attr=edge_attr,
+            cumulate=cumulate,
+            global_train_mask=global_train_mask
+        )
+        taskfile = task_path(path, i)
+        task.save(taskfile)
+
+    dataset_info = {
+            "num_classes": len(np.unique(y)),
+            "num_features": int(x.shape[1]),
+            "t_zero": int(t_zero),
+            "history_size": int(cumulate),
+            "num_tasks": len(uniq_task_ids),
+            "t_min": int(t_numpy.min()),
+            "t_max": int(t_numpy.max()),
+            "backend": str(backend),
+            "label_rate": float(subsample_train)
+    }
+
+    infopath = os.path.join(path, "info.json")
+    with open(infopath, 'w') as infofile:
+        json.dump(dataset_info, infofile)
+
+    return LifelongNodeClassificationDataset(path)
+
+
+class LifelongNodeClassificationDataset(torch.utils.data.Dataset):
+    def __init__(self, root_dir, inductive=False):
+        self.root_dir = root_dir
+        files = os.listdir(root_dir)
+
+        with open(os.path.join(root_dir, "info.json"), 'r') as infofile:
+            info = json.load(infofile)
+        self.num_classes = int(info['num_classes'])
+        self.num_features = int(info['num_features'])
+        self.t_zero = int(info['t_zero'])
+        self.history_size = int(info['history_size'])
+        self.num_tasks = int(info['num_tasks'])
+        self.t_min = int(info['t_min'])
+        self.t_max = int(info['t_max'])
+        self.backend = str(info['backend'])
+        if 'label_rate' in info:
+            self.label_rate = float(info['label_rate'])
+        else:
+            self.label_rate = None
+        self.inductive = inductive
+
+    def __repr__(self):
+        return f"LifelongNodeClfDataset(num_features={self.num_features}, num_classes={self.num_classes}, num_tasks={self.num_tasks})"
+
+
+    def __getitem__(self, i):
+        if self.inductive:
+            # Inductive training starts at t0
+            train_task = NodeClassificationTask.load(task_path(self.root_dir, i))
+            train_task.set_all_train_()
+            # test tasks start at t1
+            test_task = NodeClassificationTask.load(task_path(self.root_dir, i+1))
+
+            return (train_task, test_task)
+
+        # Transductive: simply start at t1, such that test tasks are same in inductive/transductive cases
+        return NodeClassificationTask.load(task_path(self.root_dir, i+1))
+
+    def __len__(self):
+        return self.num_tasks - 1
+
