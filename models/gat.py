@@ -4,4 +4,10 @@ References
 ----------
 Paper: https://arxiv.org/abs/1710.10903
 Author's code: https://github.com/PetarV-/GAT
-Pytorch implementatio
+Pytorch implementation: https://github.com/Diego999/pyGAT
+"""
+
+import torch
+import torch.nn as nn
+import dgl.function as fn
+from dgl.nn.pytorch import edge_softma
