@@ -18,4 +18,9 @@ class GAT(nn.Module):
                  num_layers,
                  in_dim,
                  num_hidden,
-                 num_cl
+                 num_classes,
+                 heads,
+                 activation,
+                 feat_drop,
+                 attn_drop,
+                 negative
