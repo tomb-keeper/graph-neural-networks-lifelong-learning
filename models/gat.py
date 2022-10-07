@@ -27,4 +27,9 @@ class GAT(nn.Module):
                  residual):
         super(GAT, self).__init__()
         self.num_layers = num_layers
-        self.gat_layers = nn.Module
+        self.gat_layers = nn.ModuleList()
+        self.activation = activation
+        # input projection (no residual)
+        self.gat_layers.append(GATConv(
+            in_dim, num_hidden, heads[0],
+     
