@@ -56,4 +56,9 @@ class GAT(nn.Module):
         for layer in self.gat_layers:
             layer.reset_parameters()
 
-    def reset_final_parameters(se
+    def reset_final_parameters(self):
+        self.gat_layers[-1].reset_parameters()
+
+    def final_parameters(self):
+        yield self.gat_layers[-1].fc.weight
+        if self.g
