@@ -39,4 +39,7 @@ class GAT(nn.Module):
             self.gat_layers.append(GATConv(
                 num_hidden * heads[l-1], num_hidden, heads[l],
                 feat_drop, attn_drop, negative_slope, residual, self.activation))
-        # output pr
+        # output projection
+        self.gat_layers.append(GATConv(
+            num_hidden * heads[-2], num_classes, heads[-1],
+            feat_drop, attn_
