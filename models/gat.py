@@ -52,4 +52,8 @@ class GAT(nn.Module):
         logits = self.gat_layers[-1](graph, h).mean(1)
         return logits
 
-  
+    def reset_parameters(self):
+        for layer in self.gat_layers:
+            layer.reset_parameters()
+
+    def reset_final_parameters(se
