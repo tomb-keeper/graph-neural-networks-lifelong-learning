@@ -61,4 +61,7 @@ class GAT(nn.Module):
 
     def final_parameters(self):
         yield self.gat_layers[-1].fc.weight
-        if self.g
+        if self.gat_layers[-1].fc.bias:
+            yield self.gat_layers[-1].fc.bias
+
+
