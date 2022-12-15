@@ -29,4 +29,8 @@ class GCN(nn.Module):
         for i in range(n_layers - 1):
             self.layers.append(GraphConv(n_hidden, n_hidden, activation=activation))
         # output layer
-        self.l
+        self.layers.append(GraphConv(n_hidden, n_classes))
+        self.dropout = nn.Dropout(p=dropout)
+
+    def forward(self, graph, features):
+     
