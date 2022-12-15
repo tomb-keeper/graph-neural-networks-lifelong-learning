@@ -9,4 +9,12 @@ import torch
 import torch.nn as nn
 
 # In DGL, GraphConv refers to Kipf's GCN Conv operator
-from dgl.nn.pytorch import 
+from dgl.nn.pytorch import GraphConv
+
+
+class GCN(nn.Module):
+    def __init__(self,
+                 in_feats,
+                 n_hidden,
+                 n_classes,
+                 n_layers,
