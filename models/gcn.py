@@ -18,3 +18,9 @@ class GCN(nn.Module):
                  n_hidden,
                  n_classes,
                  n_layers,
+                 activation,
+                 dropout,
+                 improved=True):
+        super(GCN, self).__init__()
+        self.layers = nn.ModuleList()
+ 
