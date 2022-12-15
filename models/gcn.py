@@ -23,4 +23,7 @@ class GCN(nn.Module):
                  improved=True):
         super(GCN, self).__init__()
         self.layers = nn.ModuleList()
- 
+        # input layer
+        self.layers.append(GraphConv(in_feats, n_hidden, activation=activation))
+        # hidden layers
+        for i in ra
