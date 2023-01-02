@@ -49,4 +49,4 @@ class GCN(nn.Module):
 
     def final_parameters(self):
         yield self.layers[-1].fc.weight
-        yield self.layers[-1]
+        yield self.layers[-1].fc.bias
