@@ -135,3 +135,17 @@ class MLP(_BasicNet):
     def final_parameters(self):
         yield self.layers[-1].weight
         yield self.layers[-1].bias
+
+
+
+
+class SGNet(SGConv):
+    def __reset_cache__(self):
+        self._cached_x = None
+
+    def final_parameters(self):
+        yield self.lin.weight
+        yield self.lin.bias
+
+    def reset_final_parameters(self):
+        self.lin.reset_parameters()
