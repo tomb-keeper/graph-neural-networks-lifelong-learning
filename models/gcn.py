@@ -44,4 +44,9 @@ class GCN(nn.Module):
         for layer in self.layers:
             layer.reset_parameters()
 
-    def reset_final_paramete
+    def reset_final_parameters(self):
+        self.layers[-1].reset_parameters()
+
+    def final_parameters(self):
+        yield self.layers[-1].fc.weight
+        yield self.layers[-1]
