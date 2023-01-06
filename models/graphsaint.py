@@ -80,3 +80,57 @@ def train_saint(model, optimizer, g, feats, labels, mask=None, epochs=1, weights
             logits = model(batch.x, batch.edge_index)
 
         if use_mask:
+            subg_mask = batch.mask
+            loss = F.cross_entropy(logits[subg_mask], batch.y[subg_mask], reduction=reduction)
+            if use_norm:
+                loss = (loss * batch.node_norm[subg_mask]).sum()
+        else:
+            loss = F.cross_entropy(logits, batch.y, reduction=reduction)
+            if use_norm:
+                loss = (loss * batch.node_norm).sum()
+
+
+        # This is a no-op as loss is already reduced to its mean
+        # print("[debug] Loss size pre-sum", loss.size())
+        # loss = loss.sum()
+        # Step
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        print("Step {:d} | Loss: {:.4f}".format(i, loss.detach().item()))
+        del batch
+        gc.collect()
+        th.cuda.empty_cache()
+
+    # No mem leaks
+    # del data
+    del data
+    del loader
+    gc.collect()
+    th.cuda.empty_cache()
+
+
+def evaluate_saint(model, g, feats, labels, mask=None, compute_loss=True, compute_f1=False):
+    model.eval()
+    with th.no_grad():
+        print("GraphSAINT eval labels size", labels.size())
+        logits = model(feats, g)
+        print("GraphSAINT eval logits size", logits.size())
+        if mask is not None:
+            print("GraphSAINT eval mask size", mask.size())
+            logits = logits[mask]
+            labels = labels[mask]
+        print("Logits size post-mask", logits.size())
+
+        if compute_loss:
+            loss = F.cross_entropy(logits, labels).item()
+        else:
+            loss = None
+
+        __max_vals, max_indices = th.max(logits.detach(), 1)
+        acc = (max_indices == labels).sum().float() / labels.size(0)
+        if compute_f1:
+            f1 = f1_score(labels.cpu(), max_indices.cpu(), average="macro")
+        else:
+            f1 = None
+    return acc.item(), f1, loss
