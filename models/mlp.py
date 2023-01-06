@@ -4,4 +4,8 @@ import torch.nn as nn
 
 class MLP(nn.Module):
     def __init__(self, in_feats, n_hidden, n_classes,
-            
+                 n_layers, activation, dropout):
+        super(MLP, self).__init__()
+        self.layers = nn.ModuleList()
+
+        sel
