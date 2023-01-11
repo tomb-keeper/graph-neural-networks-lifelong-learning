@@ -11,4 +11,7 @@ class MLP(nn.Module):
         self.layers.append(nn.Linear(in_feats, n_hidden))
         for i in range(n_layers - 1):
             self.layers.append(nn.Linear(n_hidden, n_hidden))
-   
+        self.layers.append(nn.Linear(n_hidden, n_classes))
+
+        self.dropout = nn.Dropout(p=dropout) if dropout else None
+        assert
