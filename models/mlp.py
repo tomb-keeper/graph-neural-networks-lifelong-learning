@@ -14,4 +14,9 @@ class MLP(nn.Module):
         self.layers.append(nn.Linear(n_hidden, n_classes))
 
         self.dropout = nn.Dropout(p=dropout) if dropout else None
-        assert
+        assert callable(activation)
+        self.activation = activation
+
+    def forward(self, g, features):
+        h = features
+        for layer in self.layer
