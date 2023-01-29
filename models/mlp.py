@@ -24,4 +24,10 @@ class MLP(nn.Module):
             if self.dropout is not None:
                 h = self.dropout(h)
             if self.activation is not None:
-      
+                h = self.activation(h)
+        logits = self.layers[-1](h)
+        return logits
+
+    def reset_parameters(self):
+        for layer in self.layers:
+ 
