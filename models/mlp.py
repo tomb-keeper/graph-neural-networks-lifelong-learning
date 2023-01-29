@@ -19,4 +19,9 @@ class MLP(nn.Module):
 
     def forward(self, g, features):
         h = features
-        for layer in self.layer
+        for layer in self.layers[:-1]:
+            h = layer(h)
+            if self.dropout is not None:
+                h = self.dropout(h)
+            if self.activation is not None:
+      
