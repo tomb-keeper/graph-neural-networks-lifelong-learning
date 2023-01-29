@@ -30,4 +30,9 @@ class MLP(nn.Module):
 
     def reset_parameters(self):
         for layer in self.layers:
- 
+            layer.reset_parameters()
+
+    def reset_final_parameters(self):
+        self.layers[-1].reset_parameters()
+
+    def final_paramete
