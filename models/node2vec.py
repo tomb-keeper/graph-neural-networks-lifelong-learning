@@ -1,2 +1,7 @@
 import torch
-import torch_
+import torch_geometric
+
+
+def add_node2vec_args(parser):
+    """ Adds node2vec specific command line arguments to a given parser """
+    parser.add_argument('--n2v_walk_length', type=i
