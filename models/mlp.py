@@ -35,4 +35,7 @@ class MLP(nn.Module):
     def reset_final_parameters(self):
         self.layers[-1].reset_parameters()
 
-    def final_paramete
+    def final_parameters(self):
+        yield self.layers[-1].weight
+        yield self.layers[-1].bias
+
