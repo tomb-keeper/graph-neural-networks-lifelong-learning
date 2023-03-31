@@ -9,4 +9,6 @@ def add_node2vec_args(parser):
     parser.add_argument('--n2v_walks_per_node', type=int, default=10,
                         help="Number of walks per node")
     parser.add_argument('--n2v_num_negative_samples', type=int, default=1,
-  
+                        help="Num negative examples per positive example")
+    parser.add_argument('--n2v_context_size', type=int, default=10,
+                    
