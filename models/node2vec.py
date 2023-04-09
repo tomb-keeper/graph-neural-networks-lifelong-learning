@@ -15,4 +15,7 @@ def add_node2vec_args(parser):
     parser.add_argument('--n2v_p', type=float, default=1.,
                         help="Node2vec p parameter")
     parser.add_argument('--n2v_q', type=float, default=1.,
-                        help="Node2vec q p
+                        help="Node2vec q parameter")
+    parser.add_argument('--n2v_batch_size', type=int, default=128,
+                        help="Node2vec batch size")
+    parser.add_argument('--n2
