@@ -18,4 +18,8 @@ def add_node2vec_args(parser):
                         help="Node2vec q parameter")
     parser.add_argument('--n2v_batch_size', type=int, default=128,
                         help="Node2vec batch size")
-    parser.add_argument('--n2
+    parser.add_argument('--n2v_num_workers', type=int, default=4,
+                        help="Node2vec workers (#threads)")
+
+def train_node2vec(model, optimizer, epochs=1,
+  
