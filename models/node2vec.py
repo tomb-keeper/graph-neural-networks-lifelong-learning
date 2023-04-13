@@ -22,4 +22,6 @@ def add_node2vec_args(parser):
                         help="Node2vec workers (#threads)")
 
 def train_node2vec(model, optimizer, epochs=1,
-  
+                   batch_size=128, shuffle=True, num_workers=4):
+    assert isinstance(model, torch_geometric.nn.Node2Vec)
+    loader = model.load
