@@ -26,4 +26,9 @@ def train_node2vec(model, optimizer, epochs=1,
     assert isinstance(model, torch_geometric.nn.Node2Vec)
     loader = model.loader(batch_size=batch_size,
                           shuffle=shuffle, num_workers=num_workers)
-    device = model.embedding.weight.device 
+    device = model.embedding.weight.device # Guess device
+    model.train()
+    for epoch in range(epochs):
+        total_loss = 0
+        for pos_rw, neg_rw in loader:
+            o
