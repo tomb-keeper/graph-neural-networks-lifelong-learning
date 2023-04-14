@@ -35,4 +35,9 @@ def train_node2vec(model, optimizer, epochs=1,
             loss = model.loss(pos_rw.to(device), neg_rw.to(device))
             loss.backward()
             optimizer.step()
-            total_loss += loss.it
+            total_loss += loss.item()
+        epoch_loss = total_loss / len(loader)
+        print("[Node2vec] Epoch {:d} | Loss: {:.4f}".format(epoch + 1, epoch_loss))
+
+
+@torch
