@@ -40,4 +40,6 @@ def train_node2vec(model, optimizer, epochs=1,
         print("[Node2vec] Epoch {:d} | Loss: {:.4f}".format(epoch + 1, epoch_loss))
 
 
-@torch
+@torch.no_grad()
+def evaluate_node2vec(model, labels, train_mask_or_vids, test_mask_or_vids):
+    assert isinstance(model, torch_geometric.nn.Node2Vec)
