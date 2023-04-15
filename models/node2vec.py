@@ -43,3 +43,7 @@ def train_node2vec(model, optimizer, epochs=1,
 @torch.no_grad()
 def evaluate_node2vec(model, labels, train_mask_or_vids, test_mask_or_vids):
     assert isinstance(model, torch_geometric.nn.Node2Vec)
+    model.eval()
+    z = model()
+    assert z.size(0) == labels.size(0), "Known embeddings does not match with given labels"
+    acc = model.test(z[train
