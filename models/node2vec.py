@@ -46,4 +46,6 @@ def evaluate_node2vec(model, labels, train_mask_or_vids, test_mask_or_vids):
     model.eval()
     z = model()
     assert z.size(0) == labels.size(0), "Known embeddings does not match with given labels"
-    acc = model.test(z[train
+    acc = model.test(z[train_mask_or_vids], labels[train_mask_or_vids],
+                     z[test_mask_or_vids], labels[test_mask_or_vids])
+    return acc
