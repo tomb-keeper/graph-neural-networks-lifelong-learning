@@ -9,4 +9,8 @@ class SGNet(SGConv):
 
     def reset_final_parameters(self):
         # SGNet has only one input-to-output layer
-        self.reset_parameter
+        self.reset_parameters()
+
+    def final_parameters(self):
+        yield self.fc.weight
+        yield self.fc.bias
