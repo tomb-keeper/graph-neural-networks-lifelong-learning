@@ -4,4 +4,9 @@ from dgl.nn.pytorch.conv.sgconv import SGConv
 
 
 class SGNet(SGConv):
-    def __reset_ca
+    def __reset_cache__(self):
+        self._cached_h = None
+
+    def reset_final_parameters(self):
+        # SGNet has only one input-to-output layer
+        self.reset_parameter
