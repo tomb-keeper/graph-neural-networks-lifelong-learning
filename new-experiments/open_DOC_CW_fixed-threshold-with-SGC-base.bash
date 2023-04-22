@@ -29,3 +29,6 @@ for SEED in 10 11 12 13 14; do
 			echo "${HPARAMS[$i]}"
 			echo "$OLG_ARGS"
 			python3 run_experiment_new.py ${HPARAMS[$i]} --seed "$SEED" --model sgnet --n_hidden 32 $ARGS $PRETRAIN_ARGS --dataset "$DATA" $OLG_ARGS --save "$OUTFILE"
+		done
+	done
+done
