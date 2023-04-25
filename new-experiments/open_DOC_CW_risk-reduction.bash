@@ -21,4 +21,6 @@ HPARAMS=(
 	"--history 25 --start warm --lr 0.005"
 )
 
-OLG_ARGS=
+OLG_ARGS=(
+	# "--open_learning doc --doc_threshold 0.5 --doc_reduce_risk --doc_alpha 3.0 --doc_class_weights"
+	# "--open_learning doc --doc_threshold 0.5 --do
