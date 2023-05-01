@@ -28,4 +28,5 @@ OLG_ARGS=(
 	# "--open_learning doc --doc_threshold 0.0 --doc_reduce_risk --doc_alpha 1.5 --doc_class_weights"
 	# "--open_learning doc --doc_threshold 0.1 --doc_reduce_risk --doc_alpha 1.5 --doc_class_weights"
 	# "--open_learning doc --doc_threshold 0.75 --doc_reduce_risk --doc_alpha 1.5 --doc_class_weights"
-	# "--open
+	# "--open_learning doc --doc_threshold 0.75 --doc_reduce_risk --doc_alpha 3.0 --doc_class_weights"
+	"--open_learning doc --doc_threshold 0.75 --doc_alpha 999 --do
