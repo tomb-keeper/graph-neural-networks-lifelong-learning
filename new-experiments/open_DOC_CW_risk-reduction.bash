@@ -29,4 +29,11 @@ OLG_ARGS=(
 	# "--open_learning doc --doc_threshold 0.1 --doc_reduce_risk --doc_alpha 1.5 --doc_class_weights"
 	# "--open_learning doc --doc_threshold 0.75 --doc_reduce_risk --doc_alpha 1.5 --doc_class_weights"
 	# "--open_learning doc --doc_threshold 0.75 --doc_reduce_risk --doc_alpha 3.0 --doc_class_weights"
-	"--open_learning doc --doc_threshold 0.75 --doc_alpha 999 --do
+	"--open_learning doc --doc_threshold 0.75 --doc_alpha 999 --doc_class_weights"
+)
+
+for SEED in 10 11 12 13 14; do
+	for i in ${!HPARAMS[@]}; do
+		echo "${HPARAMS[$i]}"
+		for j in ${!OLG_ARGS[@]}; do
+			echo "${OLG_ARGS[
