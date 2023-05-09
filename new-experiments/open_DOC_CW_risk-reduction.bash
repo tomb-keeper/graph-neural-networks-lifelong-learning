@@ -37,4 +37,8 @@ for SEED in 10 11 12 13 14; do
 		echo "${HPARAMS[$i]}"
 		for j in ${!OLG_ARGS[@]}; do
 			echo "${OLG_ARGS[$j]}"
-			python3 run_experiment_new.py ${HPARAMS[$i]} --seed "$SEED" --model gs-mean --n_hidden 32 $ARGS $PRETRAIN_ARGS --dataset "$DATA" ${OLG_ARGS[$j
+			python3 run_experiment_new.py ${HPARAMS[$i]} --seed "$SEED" --model gs-mean --n_hidden 32 $ARGS $PRETRAIN_ARGS --dataset "$DATA" ${OLG_ARGS[$j]} --save "$OUTFILE"
+		done
+
+	done
+done

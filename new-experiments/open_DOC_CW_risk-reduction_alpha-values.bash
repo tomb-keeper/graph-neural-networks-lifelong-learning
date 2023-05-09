@@ -1,0 +1,6 @@
+DATA="dblp-hard"
+YEAR=2004
+ANNUAL_EPOCHS=200
+NLAYERS=1
+BACKEND="dgl"
+ARGS="--n_layers $NLAYE
