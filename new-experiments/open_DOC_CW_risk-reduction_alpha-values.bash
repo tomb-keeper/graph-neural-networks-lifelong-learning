@@ -15,4 +15,7 @@ HPARAMS=(
 	# "--history 1 --start warm --lr 0.0005"
 	# "--history 3 --start cold --lr 0.005"
 	"--history 3 --start warm --lr 0.001"
-	#
+	# "--history 6 --start cold --lr 0.01"
+	# "--history 6 --start warm --lr 0.005"
+	# "--history 25 --start cold --lr 0.01"
+	# "--history 25 --start w
