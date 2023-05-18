@@ -18,4 +18,11 @@ HPARAMS=(
 	# "--history 6 --start cold --lr 0.01"
 	# "--history 6 --start warm --lr 0.005"
 	# "--history 25 --start cold --lr 0.01"
-	# "--history 25 --start w
+	# "--history 25 --start warm --lr 0.005"
+)
+
+
+for SEED in 10 11 12 13 14; do
+	# for DOC_THRESHOLD in "0.5" "0.25" "0.0"; do
+	for DOC_THRESHOLD in "1.00"; do
+		for DOC_ALPHA in "0
