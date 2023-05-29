@@ -22,4 +22,6 @@ HPARAMS=(
 )
 
 OLG_ARGS=(
-	# "--open_learning doc --d
+	# "--open_learning doc --doc_threshold 0.5 --doc_reduce_risk --doc_alpha 3.0"
+	# "--open_learning doc --doc_threshold 0.5 --doc_reduce_risk --doc_alpha 1.5"
+	# "--open
