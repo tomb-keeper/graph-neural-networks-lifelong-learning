@@ -16,4 +16,10 @@ HPARAMS=(
 	"--history 3 --start cold --lr 0.005"
 	"--history 3 --start warm --lr 0.005"
 	"--history 6 --start cold --lr 0.01"
-	"--history 6 --s
+	"--history 6 --start warm --lr 0.005"
+	"--history 25 --start cold --lr 0.01"
+	"--history 25 --start warm --lr 0.01"
+)
+
+OLG_ARGS=(
+	# "--open_learning doc --d
