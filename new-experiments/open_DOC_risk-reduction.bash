@@ -31,4 +31,7 @@ OLG_ARGS=(
 
 for SEED in 10 11 12 13 14; do
 	for i in ${!HPARAMS[@]}; do
-		echo "${HPARAMS[
+		echo "${HPARAMS[$i]}"
+		for j in ${!OLG_ARGS[@]}; do
+			echo "${OLG_ARGS[$j]}"
+			python3 run_experiment_new.py ${HPARAMS[$i]} --seed "$SEED" --model gs-me
