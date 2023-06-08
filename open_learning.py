@@ -199,3 +199,82 @@ def add_args(parser):
                         help="Method for self detection of unseen classes",
                         choices=["doc"])
     parser.add_argument('--doc_threshold', default=0.5, type=float,
+                        help="Threshold for DOC")
+    parser.add_argument('--doc_reduce_risk',
+                        default=False, action='store_true',
+                        help="Reduce Open Space Risk by Gaussian-fitting")
+    parser.add_argument('--doc_alpha', default=3.0,
+                        help="Alpha for DOC")
+    parser.add_argument('--doc_class_weights', default=False,
+                        action='store_true',
+                        help="Use class weights against class imbalance")
+
+
+def build(args, num_classes=None):
+    if args.open_learning == "doc":
+        return DeepOpenClassification(threshold=args.doc_threshold,
+                                      reduce_risk=args.doc_reduce_risk,
+                                      alpha=args.doc_alpha,
+                                      num_classes=num_classes,
+                                      use_class_weights=args.doc_class_weights)
+    elif args.open_learning == "openmax":
+        raise NotImplementedError("OpenMax not yet implemented")
+    else:
+        raise NotImplementedError(f"Unknown key: {args.open_learning}")
+
+
+def bool2pmone(x):
+    """ Converts boolean mask to {-1,1}^N int array """
+    x = np.asarray(x, dtype=int)
+    return x * 2 - 1
+
+
+def evaluate(labels, unseen_classes,
+             predictions, reject_mask):
+
+    # Shift stuff to CPU
+    labels = labels.cpu()
+    predictions = predictions.cpu()
+    reject_mask = reject_mask.cpu()
+
+
+    # Copy because we will later insert -100 for unseen
+    labels = labels.clone().numpy()
+    predictions = predictions.clone().numpy()
+
+    unseen = list(unseen_classes)
+    reject_mask = np.asarray(reject_mask)
+
+    print("Labels", labels)
+    print("Unseen", unseen)
+    true_reject = np.isin(labels, unseen)
+    # print(reject_mask.shape)
+    # print(true_reject.shape)
+    print("True reject", true_reject)
+    print("Reject mask", reject_mask)
+
+    print("False in true_reject:", False in true_reject)
+    print("True in true_reject:", True in true_reject)
+    print("False in reject_mask:", False in reject_mask)
+    print("True in reject_mask:", True in reject_mask)
+
+    tp = (reject_mask & true_reject).sum()
+    tn = (~reject_mask & ~true_reject).sum()
+    fp = (reject_mask & ~true_reject).sum()
+    fn = (~reject_mask & true_reject).sum()
+
+    # MCC
+    mcc = matthews_corrcoef(bool2pmone(true_reject),
+                            bool2pmone(reject_mask))
+
+
+
+    # Open F1 Macro
+    labels[true_reject] = -100
+    print("True lables with -100 for unseen:", labels, labels.shape)
+    predictions[reject_mask] = -100
+    print("Predictions including rejected:", predictions, predictions.shape)
+    f1_macro = f1_score(labels, predictions, average='macro')
+
+    return {'open_mcc': mcc, 'open_f1_macro': f1_macro,
+            'open_tp': tp, 'open_tn': tn, 'open_fp': fp, 'open_fn': fn}
