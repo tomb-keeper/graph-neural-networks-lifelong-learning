@@ -10,4 +10,10 @@ import argparse
 from collections import Counter
 from operator import itemgetter
 import dgl
-from dgl.data import register_data_args, load_data as load
+from dgl.data import register_data_args, load_data as load_data_dgi
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path", help="Path to 70company-like dataset")
+    parser.
