@@ -22,4 +22,7 @@ def main():
         default="./figures/degree.png",
     )
     parser.add_argument(
-    
+        "--dmin",
+        help="Custom min degree for computing power law exp, defaults to min value from data",
+        default=None,
+        type=in
