@@ -25,4 +25,11 @@ def main():
         "--dmin",
         help="Custom min degree for computing power law exp, defaults to min value from data",
         default=None,
-        type=in
+        type=int,
+    )
+    parser.add_argument(
+        "--remove-self-loops",
+        help="Remove self loops",
+        default=False,
+        action="store_true",
+ 
