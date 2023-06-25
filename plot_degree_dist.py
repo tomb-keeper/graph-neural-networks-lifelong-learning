@@ -43,4 +43,9 @@ def main():
         g = dgl.DGLGraph(load_data_dgi(argparse.Namespace(dataset=args.path)).graph)
     print(g)
     if args.remove_self_loops:
-        print("Removing 
+        print("Removing self-loops")
+        g = dgl.transform.remove_self_loop(g)
+    degrees = np.asarray(g.in_degrees())
+
+    degree_counts = Counter(degrees)
+    x, y = 
