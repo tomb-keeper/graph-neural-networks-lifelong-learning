@@ -39,4 +39,8 @@ def main():
     try:
         g, _, _, _ = load_data(args.path)
     except FileNotFoundError:
-        print("Trying to load", args.path,
+        print("Trying to load", args.path, "via DGL")
+        g = dgl.DGLGraph(load_data_dgi(argparse.Namespace(dataset=args.path)).graph)
+    print(g)
+    if args.remove_self_loops:
+        print("Removing 
