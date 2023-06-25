@@ -32,4 +32,11 @@ def main():
         help="Remove self loops",
         default=False,
         action="store_true",
- 
+    )
+
+    args = parser.parse_args()
+
+    try:
+        g, _, _, _ = load_data(args.path)
+    except FileNotFoundError:
+        print("Trying to load", args.path,
