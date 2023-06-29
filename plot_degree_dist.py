@@ -56,4 +56,11 @@ def main():
 
     plt.xlabel("degree")
     plt.xscale("log")
-    plt.x
+    plt.xlim(min(x), max(x))
+
+    plt.ylabel("frequency")
+    plt.yscale("log")
+    plt.ylim(min(y), max(y))
+
+    # start with straight line
+    # plt.plot
