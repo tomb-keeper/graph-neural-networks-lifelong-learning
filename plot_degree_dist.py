@@ -48,4 +48,12 @@ def main():
     degrees = np.asarray(g.in_degrees())
 
     degree_counts = Counter(degrees)
-    x, y = 
+    x, y = zip(*degree_counts.items())
+
+    plt.figure(1)
+
+    # plt.title("Degree distribution")
+
+    plt.xlabel("degree")
+    plt.xscale("log")
+    plt.x
