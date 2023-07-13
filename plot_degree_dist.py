@@ -63,4 +63,6 @@ def main():
     plt.ylim(min(y), max(y))
 
     # start with straight line
-    # plt.plot
+    # plt.plot([min(x), max(x)], [max(y), min(y)], color='r', linestyle='-', linewidth=1.0)
+    # and scatter the distribution
+    plt.scatter(x, y, marker=
