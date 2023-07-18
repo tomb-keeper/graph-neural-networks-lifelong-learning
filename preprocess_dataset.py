@@ -10,4 +10,5 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("dataset")
-    parser.add_argument("--t_zero", default=
+    parser.add_argument("--t_zero", default=None, type=int, help="Last task identifier before the first evaluation task identifier")
+    parser.add_argument("--history", default=0, type=
