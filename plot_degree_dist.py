@@ -74,4 +74,10 @@ def main():
 
     print("Computing power law exponent")
 
-    i
+    if args.dmin is None:
+        dmin = degrees.min()
+    else:
+        degrees = degrees[degrees >= args.dmin]
+        dmin = args.dmin
+
+    # N must
