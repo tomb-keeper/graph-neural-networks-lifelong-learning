@@ -65,4 +65,13 @@ def main():
     # start with straight line
     # plt.plot([min(x), max(x)], [max(y), min(y)], color='r', linestyle='-', linewidth=1.0)
     # and scatter the distribution
-    plt.scatter(x, y, marker=
+    plt.scatter(x, y, marker=".")
+
+    plt.tight_layout()
+
+    print(f"Plotting to {args.outfile}")
+    plt.savefig(args.outfile)
+
+    print("Computing power law exponent")
+
+    i
