@@ -84,4 +84,9 @@ def main():
     # Not total number of nodes
     n = degrees.size
     print("d_min =", dmin)
- 
+    print("N =", n)
+    gamma = 1 + n / np.log(degrees / dmin).sum()
+    print("Gamma = {:.4f}".format(gamma))
+
+
+if __name__ == "__ma
