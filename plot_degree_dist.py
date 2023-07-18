@@ -89,4 +89,5 @@ def main():
     print("Gamma = {:.4f}".format(gamma))
 
 
-if __name__ == "__ma
+if __name__ == "__main__":
+    main()
