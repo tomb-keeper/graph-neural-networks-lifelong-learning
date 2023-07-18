@@ -80,4 +80,8 @@ def main():
         degrees = degrees[degrees >= args.dmin]
         dmin = args.dmin
 
-    # N must
+    # N must be number of values that go into computation
+    # Not total number of nodes
+    n = degrees.size
+    print("d_min =", dmin)
+ 
