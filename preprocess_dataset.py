@@ -11,4 +11,6 @@ def main():
 
     parser.add_argument("dataset")
     parser.add_argument("--t_zero", default=None, type=int, help="Last task identifier before the first evaluation task identifier")
-    parser.add_argument("--history", default=0, type=
+    parser.add_argument("--history", default=0, type=int, help="History size")
+    parser.add_argument("--backend", default="dgl", type=str, choices=["dgl", "geometric"])
+    parser.add_argument("--basedi
