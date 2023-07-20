@@ -13,4 +13,5 @@ def main():
     parser.add_argument("--t_zero", default=None, type=int, help="Last task identifier before the first evaluation task identifier")
     parser.add_argument("--history", default=0, type=int, help="History size")
     parser.add_argument("--backend", default="dgl", type=str, choices=["dgl", "geometric"])
-    parser.add_argument("--basedi
+    parser.add_argument("--basedir", help="Basedir for preprocessed dataset, else create subdirectory in input")
+    parser.add_argument("--label_rate", help="Subsample the tra
