@@ -14,4 +14,7 @@ def main():
     parser.add_argument("--history", default=0, type=int, help="History size")
     parser.add_argument("--backend", default="dgl", type=str, choices=["dgl", "geometric"])
     parser.add_argument("--basedir", help="Basedir for preprocessed dataset, else create subdirectory in input")
-    parser.add_argument("--label_rate", help="Subsample the tra
+    parser.add_argument("--label_rate", help="Subsample the train nodes globally.", default=None, type=float)
+    args = parser.parse_args()
+    if args.label_rate is not None:
+        asser
