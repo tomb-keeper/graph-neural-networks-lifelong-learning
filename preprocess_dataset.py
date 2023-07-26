@@ -19,4 +19,6 @@ def main():
     if args.label_rate is not None:
         assert args.label_rate > 0.0 and args.label_rate < 1.0
     graph_or_edge_index, features, labels, years = load_data(args.dataset, backend=args.backend)
-   
+    basedir = args.basedir if args.basedir else args.dataset
+
+    outdir = os.path.join(basedir, lifelong_nodeclf_identifier(args.dataset, 
