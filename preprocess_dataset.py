@@ -21,4 +21,7 @@ def main():
     graph_or_edge_index, features, labels, years = load_data(args.dataset, backend=args.backend)
     basedir = args.basedir if args.basedir else args.dataset
 
-    outdir = os.path.join(basedir, lifelong_nodeclf_identifier(args.dataset, 
+    outdir = os.path.join(basedir, lifelong_nodeclf_identifier(args.dataset, args.t_zero, args.history, args.backend, label_rate=args.label_rate))
+
+    # Cast to torch tensors
+    features = torch.as_tensor(features, dtype=torch.float)
