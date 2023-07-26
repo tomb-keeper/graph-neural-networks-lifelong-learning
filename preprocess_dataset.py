@@ -25,3 +25,8 @@ def main():
 
     # Cast to torch tensors
     features = torch.as_tensor(features, dtype=torch.float)
+    labels = torch.as_tensor(labels, dtype=torch.long)
+    years = torch.as_tensor(years, dtype=torch.long)
+
+    if args.backend == "geometric":
+   
