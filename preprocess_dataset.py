@@ -17,4 +17,6 @@ def main():
     parser.add_argument("--label_rate", help="Subsample the train nodes globally.", default=None, type=float)
     args = parser.parse_args()
     if args.label_rate is not None:
-        asser
+        assert args.label_rate > 0.0 and args.label_rate < 1.0
+    graph_or_edge_index, features, labels, years = load_data(args.dataset, backend=args.backend)
+   
