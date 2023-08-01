@@ -29,4 +29,6 @@ def main():
     years = torch.as_tensor(years, dtype=torch.long)
 
     if args.backend == "geometric":
-   
+        dataset = make_lifelong_nodeclf_dataset(outdir,
+                                                years,
+                                                
