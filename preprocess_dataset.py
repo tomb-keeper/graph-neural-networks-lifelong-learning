@@ -31,4 +31,7 @@ def main():
     if args.backend == "geometric":
         dataset = make_lifelong_nodeclf_dataset(outdir,
                                                 years,
-                                                
+                                                features,
+                                                labels,
+                                                edge_index=graph_or_edge_index,
+          
