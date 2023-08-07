@@ -34,4 +34,6 @@ def main():
                                                 features,
                                                 labels,
                                                 edge_index=graph_or_edge_index,
-          
+                                                t_zero=args.t_zero,
+                                                cumulate=args.history,
+                      
