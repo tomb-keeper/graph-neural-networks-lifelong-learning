@@ -36,4 +36,7 @@ def main():
                                                 edge_index=graph_or_edge_index,
                                                 t_zero=args.t_zero,
                                                 cumulate=args.history,
-                      
+                                                subsample_train=args.label_rate)
+    elif args.backend == 'dgl':
+        dataset = make_lifelong_nodeclf_dataset(outdir,
+            
