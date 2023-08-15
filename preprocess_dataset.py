@@ -39,4 +39,6 @@ def main():
                                                 subsample_train=args.label_rate)
     elif args.backend == 'dgl':
         dataset = make_lifelong_nodeclf_dataset(outdir,
-            
+                                                years,
+                                                features,
+                                                
