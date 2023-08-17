@@ -41,4 +41,6 @@ def main():
         dataset = make_lifelong_nodeclf_dataset(outdir,
                                                 years,
                                                 features,
-                                                
+                                                labels,
+                                                dgl_graph=graph_or_edge_index,
+                                             
