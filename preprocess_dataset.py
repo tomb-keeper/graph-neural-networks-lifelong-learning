@@ -43,4 +43,6 @@ def main():
                                                 features,
                                                 labels,
                                                 dgl_graph=graph_or_edge_index,
-                                             
+                                                t_zero=args.t_zero,
+                                                cumulate=args.history,
+                                                
