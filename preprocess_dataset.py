@@ -45,4 +45,12 @@ def main():
                                                 dgl_graph=graph_or_edge_index,
                                                 t_zero=args.t_zero,
                                                 cumulate=args.history,
-                                                
+                                                subsample_train=args.label_rate)
+    else:
+        raise ValueError("Unknown backend")
+
+    print(dataset)
+
+
+if __name__ == '__main__':
+    main()
