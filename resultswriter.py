@@ -13,4 +13,9 @@ RESULT_COLS = ['dataset',
                'seed',
                'backend',
                'model',
- 
+               'variant',
+               'n_hidden',
+               'n_layers',
+               'dropout',
+               'sampling',
+               'batch
