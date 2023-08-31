@@ -7,4 +7,10 @@ import pandas as pd
 # do not change this
 # unless also changing CSVResultsWriter.add_result()
 RESULT_COLS = ['dataset',
-          
+               'history',
+               'label_rate',
+               'inductive',
+               'seed',
+               'backend',
+               'model',
+ 
