@@ -18,4 +18,9 @@ RESULT_COLS = ['dataset',
                'n_layers',
                'dropout',
                'sampling',
-               'batch
+               'batch_size',
+               'saint_coverage',
+               'initial_epochs',
+               'initial_lr',
+               'initial_wd',
+          
