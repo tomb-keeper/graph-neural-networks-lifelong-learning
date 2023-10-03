@@ -23,4 +23,10 @@ RESULT_COLS = ['dataset',
                'initial_epochs',
                'initial_lr',
                'initial_wd',
-          
+               'annual_epochs',
+               'annual_lr',
+               'annual_wd',
+               'start',
+               'decay',
+               'year',
+      
