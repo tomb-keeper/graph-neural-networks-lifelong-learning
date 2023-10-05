@@ -29,4 +29,9 @@ RESULT_COLS = ['dataset',
                'start',
                'decay',
                'year',
-      
+               'epoch',
+               'f1_macro',
+               'accuracy',
+               'open_learning',
+               'doc_threshold',
+               'doc_reduce_ri
