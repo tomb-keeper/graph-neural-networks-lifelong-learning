@@ -34,4 +34,9 @@ RESULT_COLS = ['dataset',
                'accuracy',
                'open_learning',
                'doc_threshold',
-               'doc_reduce_ri
+               'doc_reduce_risk',
+               'doc_alpha',
+               'doc_class_weights',
+               'open_tp',
+               'open_tn',
+               'open
