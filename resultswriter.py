@@ -58,4 +58,9 @@ def appendDFToCSV_void(df, csvFilePath, sep=","):
     elif not (df.columns == pd.read_csv(csvFilePath, nrows=1, sep=sep).columns).all():
         raise Exception("Columns and column order of dataframe and csv file do not match!!")
     else:
+        df.to_csv(csvFilePath, mode='a', index=False, sep=sep, header=False)
+
+
+class CSVResultsWriter:
+    def __init__(self, config, columns=RESULT_COLS):
   
