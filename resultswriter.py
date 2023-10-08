@@ -47,4 +47,8 @@ RESULT_COLS = ['dataset',
 
 def appendDFToCSV_void(df, csvFilePath, sep=","):
     """ Safe appending of a pandas df to csv file
-    Source: https://stackoverflow.com/questions/17134942/pandas-dataframe-output-end-of-c
+    Source: https://stackoverflow.com/questions/17134942/pandas-dataframe-output-end-of-csv
+    """
+    if not os.path.isfile(csvFilePath):
+        df.to_csv(csvFilePath, mode='a', index=False, sep=sep)
+    elif len(df.columns) != len(pd.read
