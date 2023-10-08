@@ -51,4 +51,6 @@ def appendDFToCSV_void(df, csvFilePath, sep=","):
     """
     if not os.path.isfile(csvFilePath):
         df.to_csv(csvFilePath, mode='a', index=False, sep=sep)
-    elif len(df.columns) != len(pd.read
+    elif len(df.columns) != len(pd.read_csv(csvFilePath, nrows=1, sep=sep).columns):
+        raise Exception(
+            "Columns do not match!! Dataframe has " + str(len(df.columns)) + " columns. CSV
