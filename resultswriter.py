@@ -45,4 +45,6 @@ RESULT_COLS = ['dataset',
                'open_f1_macro']
 
 
-def appendDFToCSV_void(df, csvFilePath,
+def appendDFToCSV_void(df, csvFilePath, sep=","):
+    """ Safe appending of a pandas df to csv file
+    Source: https://stackoverflow.com/questions/17134942/pandas-dataframe-output-end-of-c
