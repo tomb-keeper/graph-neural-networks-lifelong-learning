@@ -39,4 +39,10 @@ RESULT_COLS = ['dataset',
                'doc_class_weights',
                'open_tp',
                'open_tn',
-               'open
+               'open_fp',
+               'open_fn',
+               'open_mcc',
+               'open_f1_macro']
+
+
+def appendDFToCSV_void(df, csvFilePath,
