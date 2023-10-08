@@ -55,4 +55,7 @@ def appendDFToCSV_void(df, csvFilePath, sep=","):
         raise Exception(
             "Columns do not match!! Dataframe has " + str(len(df.columns)) + " columns. CSV file has " + str(
                 len(pd.read_csv(csvFilePath, nrows=1, sep=sep).columns)) + " columns.")
-    elif not (df.columns == pd.r
+    elif not (df.columns == pd.read_csv(csvFilePath, nrows=1, sep=sep).columns).all():
+        raise Exception("Columns and column order of dataframe and csv file do not match!!")
+    else:
+  
