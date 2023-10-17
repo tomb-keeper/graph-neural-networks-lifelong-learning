@@ -63,4 +63,9 @@ def appendDFToCSV_void(df, csvFilePath, sep=","):
 
 class CSVResultsWriter:
     def __init__(self, config, columns=RESULT_COLS):
-  
+        self.config = config
+        self.data = pd.DataFrame(columns=columns)
+
+    def add_result(self, scores):
+        self.data = self.data.append(
+   
