@@ -68,4 +68,7 @@ class CSVResultsWriter:
 
     def add_result(self, scores):
         self.data = self.data.append(
-   
+            pd.DataFrame(
+                [[self.config.dataset,
+                  self.config.history,
+                  self.config.label_ra
