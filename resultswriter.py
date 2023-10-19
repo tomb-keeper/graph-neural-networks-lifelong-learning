@@ -71,4 +71,9 @@ class CSVResultsWriter:
             pd.DataFrame(
                 [[self.config.dataset,
                   self.config.history,
-                  self.config.label_ra
+                  self.config.label_rate,
+                  self.config.inductive,
+                  self.config.seed,
+                  self.config.backend,
+                  self.config.model,
+ 
