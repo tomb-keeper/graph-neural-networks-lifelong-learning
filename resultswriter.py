@@ -76,4 +76,7 @@ class CSVResultsWriter:
                   self.config.seed,
                   self.config.backend,
                   self.config.model,
- 
+                  self.config.variant,
+                  self.config.n_hidden,
+                  self.config.n_layers,
+                  self.config.dropo
