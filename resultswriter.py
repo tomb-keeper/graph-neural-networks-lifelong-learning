@@ -79,4 +79,8 @@ class CSVResultsWriter:
                   self.config.variant,
                   self.config.n_hidden,
                   self.config.n_layers,
-                  self.config.dropo
+                  self.config.dropout,
+                  self.config.sampling,
+                  self.config.batch_size,
+                  self.config.saint_coverage,
+ 
