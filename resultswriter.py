@@ -86,4 +86,6 @@ class CSVResultsWriter:
                   self.config.initial_epochs,
                   self.config.lr,
                   self.config.weight_decay,
-              
+                  self.config.annual_epochs,
+                  self.config.lr * self.config.rescale_lr,
+                  self.config.weight_decay * s
