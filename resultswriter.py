@@ -83,4 +83,7 @@ class CSVResultsWriter:
                   self.config.sampling,
                   self.config.batch_size,
                   self.config.saint_coverage,
- 
+                  self.config.initial_epochs,
+                  self.config.lr,
+                  self.config.weight_decay,
+              
