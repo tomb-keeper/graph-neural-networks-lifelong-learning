@@ -88,4 +88,8 @@ class CSVResultsWriter:
                   self.config.weight_decay,
                   self.config.annual_epochs,
                   self.config.lr * self.config.rescale_lr,
-                  self.config.weight_decay * s
+                  self.config.weight_decay * self.config.rescale_wd,
+                  self.config.start,
+                  self.config.decay,
+                  scores['task'],
+                  scores['epo
