@@ -96,4 +96,7 @@ class CSVResultsWriter:
                   scores['f1_macro'],
                   scores['accuracy'],
                   self.config.open_learning,
-       
+                  self.config.doc_threshold,
+                  self.config.doc_reduce_risk,
+                  self.config.doc_alpha,
+                  self.config.doc_cla
