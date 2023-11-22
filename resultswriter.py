@@ -92,4 +92,8 @@ class CSVResultsWriter:
                   self.config.start,
                   self.config.decay,
                   scores['task'],
-                  scores['epo
+                  scores['epoch'],
+                  scores['f1_macro'],
+                  scores['accuracy'],
+                  self.config.open_learning,
+       
