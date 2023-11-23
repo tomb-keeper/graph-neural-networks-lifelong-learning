@@ -99,4 +99,7 @@ class CSVResultsWriter:
                   self.config.doc_threshold,
                   self.config.doc_reduce_risk,
                   self.config.doc_alpha,
-                  self.config.doc_cla
+                  self.config.doc_class_weights,
+                  scores.get('open_tp', 0),  # Optional
+                  scores.get('open_tn', 0),
+                  scor
