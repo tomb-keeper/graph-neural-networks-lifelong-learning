@@ -102,4 +102,8 @@ class CSVResultsWriter:
                   self.config.doc_class_weights,
                   scores.get('open_tp', 0),  # Optional
                   scores.get('open_tn', 0),
-                  scor
+                  scores.get('open_fp', 0),
+                  scores.get('open_fn', 0),
+                  scores.get('open_mcc', 0),
+                  scores.get('open_f1_macro', 0)
+ 
