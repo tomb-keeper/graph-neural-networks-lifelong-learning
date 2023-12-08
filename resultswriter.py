@@ -111,4 +111,4 @@ class CSVResultsWriter:
             ignore_index=True)
 
     def write(self, path):
-        appendDFToCSV_void(self
+        appendDFToCSV_void(self.data, path)
