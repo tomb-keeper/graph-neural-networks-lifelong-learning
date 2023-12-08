@@ -106,4 +106,9 @@ class CSVResultsWriter:
                   scores.get('open_fn', 0),
                   scores.get('open_mcc', 0),
                   scores.get('open_f1_macro', 0)
- 
+                  ]],
+                columns=RESULT_COLS),
+            ignore_index=True)
+
+    def write(self, path):
+        appendDFToCSV_void(self
