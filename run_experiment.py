@@ -279,3 +279,162 @@ def main(args):
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
     has_parameters = args.model not in ['most_frequent']
+    backend = args.backend
+
+    print("Using backend:", backend)
+
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
+
+    if args.model == 'mostfrequent':
+        # Makes no sense to put things on GPU when using simple most frequent classifier
+        device = torch.device("cpu")
+
+    graph, features, labels, years = load_data(args.data_path, backend=backend)
+    if backend == 'geometric':
+        graph = graph
+        features = features.float()
+        labels = labels
+        years = years
+    else:
+        features = torch.FloatTensor(features)
+        labels = torch.LongTensor(labels)
+        years = torch.LongTensor(years)
+
+
+    num_nodes = features.shape[0]
+    num_edges = graph.number_of_edges() if backend == 'dgl' else graph.size(1)
+
+    print("Min year:", years.min())
+    print("Max year:", years.max())
+    print("Number of nodes:", num_nodes)
+    print("Number of edges:", num_edges)
+
+    # try:
+    #     features = torch.FloatTensor(features.float())
+    # except AttributeError:
+    #     features = torch.FloatTensor(features)
+
+    # labels = torch.LongTensor(labels)
+    # years = torch.LongTensor(years)
+    n_classes = torch.unique(labels).size(0)
+
+
+    in_feats = features.shape[1]
+    n_layers = args.n_layers
+    n_hidden = args.n_hidden
+
+    model = build_model(args, in_feats, n_hidden, n_classes, device,
+                        n_layers=args.n_layers, backend=backend,
+                        edge_index=graph, num_nodes=num_nodes)
+
+    print(model)
+    num_params = sum(np.product(p.size()) for p in model.parameters())
+    print("#params:", num_params)
+    if has_parameters:
+        if args.model == 'node2vec':
+            # Use SparseAdam for node2vec to speed things up
+            optimizer = torch.optim.SparseAdam(model.parameters(),
+                                               lr=args.lr)
+        else:
+            optimizer = torch.optim.Adam(model.parameters(),
+                                        lr=args.lr,
+                                        weight_decay=args.weight_decay)
+
+    results_df = pd.DataFrame(columns=RESULT_COLS)
+
+    def attach_score(df, year, epoch, accuracy, f1):
+        """ Partial """
+        return df.append(
+            pd.DataFrame(
+                [[args.dataset,
+                  args.seed,
+                  backend,
+                  args.model,
+                  args.variant,
+                  num_params,
+                  args.n_hidden,
+                  args.n_layers,
+                  args.dropout,
+                  args.history,
+                  args.sampling,
+                  args.batch_size,
+                  args.saint_coverage,
+                  args.limited_pretraining,
+                  args.initial_epochs,
+                  args.lr,
+                  args.weight_decay,
+                  args.annual_epochs,
+                  args.lr * args.rescale_lr,
+                  args.weight_decay * args.rescale_wd,
+                  args.start,
+                  args.decay,
+                  year,
+                  epoch,
+                  f1,
+                  accuracy]],
+                columns=RESULT_COLS),
+            ignore_index=True)
+
+    known_classes = set()
+
+    if not args.limited_pretraining and not args.start == 'cold' and args.initial_epochs > 0:
+        # With 'limited pretraining' we do the initial epochs on the first wnidow
+        # With cold start, no pretraining is needed
+        # When initial epochs are 0, no pretraining is needed either
+        # For current experiments, we have set initial_epochs = 0
+        # Exclusively the static model of experiment 1 uses this pretraining
+        data = prepare_data_for_year(graph,
+                                     features,
+                                     labels,
+                                     years,
+                                     args.pretrain_until,
+                                     10000,
+                                     device=device,
+                                     backend=backend)
+        subg, subg_features, subg_labels, subg_years, train_nid, test_nid = data
+        # Use all nodes of initial subgraph for training
+        print("Using data until", args.pretrain_until, "for training")
+        print("Selecting", subg_features.size(0), "of", features.size(0), "papers for initial training.")
+
+        train_nids = torch.cat([train_nid, test_nid])  # use all nodes in subg for initial pre-training
+        if args.model == 'mostfrequent':
+            model.fit(None, subg_labels)
+        elif args.model == 'node2vec':
+            train_node2vec(model, optimizer, epochs=epochs,
+                           batch_size=args.n2v_batch_size,
+                           shuffle=True,
+                           num_workers=args.n2v_num_workers)
+            acc = evaluate_node2vec(model, subg_labels, train_nid, test_nid)
+        elif args.model == "graphsaint":
+            raise NotImplementedError("Legacy code, needs recheck")
+            train_saint(model, optimizer, subg, subg_features, subg_labels,
+                        epochs=args.initial_epochs,
+                        n_jobs=args.saint_njobs)
+            acc, f1, _ = evaluate_saint(model, subg, subg_features, subg_labels, mask=None,
+                                        backend=backend)
+            print(f"** Train Accuracy {acc:.4f} **")
+        else:
+            print("Subg labels", subg_labels.size())
+            train(model, optimizer, subg, subg_features, subg_labels,
+                  mask=train_nid,
+                  epochs=args.initial_epochs, backend=backend)
+            acc, f1, _ = evaluate(model, subg, subg_features, subg_labels, mask=None,
+                                  backend=backend)
+            print(f"** Train Accuracy {acc:.4f} **")
+
+        known_classes |= set(subg_labels.cpu().numpy())
+        print("Known classes:", known_classes)
+
+    remaining_years = torch.unique(years[years > args.pretrain_until], sorted=True)
+
+    for t, current_year in enumerate(remaining_years):
+
+        # print(f"allocated: {torch.cuda.memory_allocated() / 1000000000} GB")
+        # Get the current subgraph
+
+        if args.model in ['graphsaint']:
+            print("///////////////////")
+            print("//// inductive ////")
+            print("///////////////////")
+            # Train completely on Task t-1
