@@ -135,3 +135,147 @@ def build_model(args, in_feats, n_hidden, n_classes, device, n_layers=1, backend
         elif model_spec == "gcn":
             model = geo.GCN(in_feats, n_hidden, n_classes, n_layers, F.relu, args.dropout).to(device)
         elif model_spec == "gat":
+            print("Warning, GAT doesn't respect n_layers")
+            heads = [8, args.gat_out_heads]  # Fixed head config
+            n_hidden_per_head = int(n_hidden / heads[0])
+            model = geo.GAT(in_feats, n_hidden_per_head, n_classes, F.relu, args.dropout, 0.6, heads).to(device)
+        elif model_spec == "mlp":
+            model = geo.MLP(in_feats, n_hidden, n_classes, n_layers, F.relu, args.dropout).to(device)
+        elif model_spec == 'jknet-sageconv':
+            # Geometric JKNEt with SAGECOnv
+            model = JKNet(tg.nn.SAGEConv, in_feats, n_hidden, n_classes, n_layers, F.relu, args.dropout,
+                    mode="cat", conv_kwargs={"normalize": False}, backend="geometric").to(device)
+        elif model_spec == 'jknet-graphconv':
+            model = JKNet(tg.nn.GraphConv, in_feats, n_hidden, n_classes, n_layers, F.relu, args.dropout,
+                    mode="cat", conv_kwargs={"aggr": "mean"}, backend="geometric").to(device)
+        elif model_spec == "sgnet":
+            model = geo.SGNet(in_channels=in_feats, out_channels=n_classes, K=n_layers, cached=True).to(device)
+        else:
+            raise NotImplementedError(f"Unknown model spec 'f{model_spec} for backend {backend}")
+    elif backend == 'dgl': # DGL models
+        if model_spec == 'gs-mean':
+            model = GraphSAGE(in_feats, n_hidden, n_classes,
+                              n_layers, F.relu, args.dropout,
+                              'mean').to(device)
+        elif model_spec == 'mlp':
+            model = MLP(in_feats, n_hidden, n_classes,
+                        n_layers, F.relu, args.dropout).to(device)
+        elif model_spec == 'mostfrequent':
+            model = MostFrequentClass()
+        elif model_spec == 'gat':
+            print("Warning, GAT doesn't respect n_layers")
+            heads = [8, args.gat_out_heads]  # Fixed head config
+            # Div num_hidden by heads for same capacity
+            n_hidden_per_head = int(n_hidden / heads[0])
+            assert n_hidden_per_head * heads[0] == n_hidden, f"{n_hidden} not divisible by {heads[0]}"
+            model = GAT(1, in_feats, n_hidden_per_head, n_classes,
+                        heads, F.elu, 0.6, 0.6, 0.2, False).to(device)
+        elif model_spec == 'node2vec':
+            assert edge_index is not None
+            model = tg.nn.Node2Vec(
+                edge_index,
+                n_hidden,
+                args.n2v_walk_length,
+                args.n2v_context_size,
+                walks_per_node=args.n2v_walks_per_node,
+                p=args.n2v_p,
+                q=args.n2v_q,
+                num_negative_samples=args.n2v_num_negative_samples,
+                num_nodes=num_nodes,
+                sparse=True
+            )
+        elif model_spec == 'jknet-sageconv':
+            # DGL JKNet
+            model = JKNet(dgl.nn.pytorch.SAGEConv,
+                    in_feats, n_hidden, n_classes, n_layers, F.relu, args.dropout,
+                    mode="cat", conv_args=["mean"], backend='dgl').to(device)
+        elif model_spec == 'sgnet':
+            model = SGNet(in_feats, n_classes, k=n_layers, cached=True, bias=True, norm=None).to(device)
+        else:
+            raise NotImplementedError(f"Unknown model spec 'f{model_spec} for backend {backend}")
+    else:
+        raise NotImplementedError(f"Unknown backend: {backend}")
+
+    return model
+
+
+def prepare_data_for_year(graph, features, labels, years, current_year, history, exclude_class=None,
+                          device=None, backend='dgl', num_hops=None):
+    print("Preparing data for year", current_year)
+    # Prepare subgraph
+    subg_node_mask = ((years <= current_year) & (years >= (current_year - history)))
+    subg_nodes = torch.arange(features.size(0))[subg_node_mask]
+
+    subg_num_nodes = subg_nodes.size(0)
+
+    if backend == 'dgl':
+        print("Creating dgl subgraph")
+        subg = dgl.node_subgraph(graph, subg_nodes)
+        print("Subgraph type:", type(subg))
+        subg.set_n_initializer(dgl.init.zero_initializer)
+    elif backend == 'geometric':
+        print("Creating geometric subgraph")
+        subg, __edge_attr = tg.utils.subgraph(subg_node_mask,
+                                              graph, relabel_nodes=True,
+                                              num_nodes=subg_num_nodes)
+
+    else:
+        raise ValueError("Unkown backend: " + backend)
+
+    subg_features = features[subg_nodes]
+    subg_labels = labels[subg_nodes]
+    subg_years = years[subg_nodes]
+
+    # Prepare masks wrt *subgraph*
+    # train_nid = torch.arange(subg_num_nodes)[subg_years < current_year]
+    # test_nid = torch.arange(subg_num_nodes)[subg_years == current_year]
+    # print("[{}] #Training: {}".format(current_year, train_nid.size(0)))
+    # print("[{}] #Test    : {}".format(current_year, test_nid.size(0)))
+
+    train_nid = subg_years < current_year
+    test_nid = subg_years == current_year
+    print("[{}] #Training: {}".format(current_year, train_nid.sum()))
+    print("[{}] #Test    : {}".format(current_year, test_nid.sum()))
+
+
+    if device is not None:
+        subg = subg.to(device)
+        subg_features = subg_features.to(device)
+        subg_labels = subg_labels.to(device)
+        # train_nid = train_nid.to(device)
+        # test_nid = test_nid.to(device)
+    return subg, subg_features, subg_labels, subg_years, train_nid, test_nid
+
+
+RESULT_COLS = ['dataset',
+               'seed',
+               'backend',
+               'model',
+               'variant',
+               'n_params',
+               'n_hidden',
+               'n_layers',
+               'dropout',
+               'history',
+               'sampling',
+               'batch_size',
+               'saint_coverage',
+               'limited_pretraining',
+               'initial_epochs',
+               'initial_lr',
+               'initial_wd',
+               'annual_epochs',
+               'annual_lr',
+               'annual_wd',
+               'start',
+               'decay',
+               'year',
+               'epoch',
+               'f1_macro',
+               'accuracy']
+
+
+def main(args):
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    has_parameters = args.model not in ['most_frequent']
