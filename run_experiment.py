@@ -438,3 +438,139 @@ def main(args):
             print("//// inductive ////")
             print("///////////////////")
             # Train completely on Task t-1
+            year_cutoff = current_year - 1
+            globals_device = torch.device("cpu")
+            inductive = True
+        else:
+            print("//////////////////////")
+            print("//// transductive ////")
+            print("//////////////////////")
+            year_cutoff = current_year
+            globals_device = device
+            inductive = False
+
+        data = prepare_data_for_year(graph,
+                                     features,
+                                     labels,
+                                     years,
+                                     year_cutoff,
+                                     args.history,
+                                     device=globals_device,
+                                     backend=backend)
+        subg, subg_features, subg_labels, subg_years, train_nid, test_nid = data
+
+        if args.decay is not None:
+            # Use decay factor to weight the loss function based on time steps t
+            weights = compute_weights(years[train_nid], args.decay, normalize=True).to(device)
+        else:
+            weights = None
+
+        if args.history == 0:
+            # No history means no uptraining at all!!!
+            # Unused. For the static model (Exp. 1) we give a history frame but do no uptraining instead.
+            epochs = 0
+        elif args.limited_pretraining and t == 0:
+            # Do the pretraining on the first history window
+            # with `initial_epochs` instead of `annual_epochs`
+            epochs = args.initial_epochs
+        else:
+            epochs = args.annual_epochs
+
+        if inductive:
+            # Task is used completely for training
+            new_classes = set(subg_labels.cpu().numpy()) - known_classes
+        else:
+            new_classes = set(subg_labels[train_nid].cpu().numpy()) - known_classes
+        print(f"New classes at time {current_year}:", new_classes)
+
+        if args.start == 'legacy-cold':
+            # Brute force re-init of model
+            del model
+            model = build_model(args, in_feats, n_hidden, n_classes, device, n_layers=args.n_layers,
+                                edge_index=subg, num_nodes=subg_features.size(0), backend=backend)
+        elif args.start == 'cold' or (args.start == 'hybrid' and new_classes):
+            # NEW version, equivalent to legacy-cold, but more efficient
+            model.reset_parameters()
+        elif args.start == 'legacy-warm' or (args.start == 'hybrid' and not new_classes):
+            # Legacy warm start: just keep old params as is
+            # differs from new warm variant on unseen classes with cat. CE loss
+            pass
+        elif args.start == 'warm':
+            # Skip for first task (does not make sense and makes problem for SGNET)
+            if t > 0 and new_classes and has_parameters:
+                print("~~~~~~ Doing partial warm reinit ~~~~~~")
+                # If there are new classes:
+                # 1) Save parameters of final layer
+                # 2) Reinit parameters of final layer
+                # 3) Copy saved parameters to new final layer
+                known_class_ids = torch.LongTensor(list(known_classes))
+                saved_params = [p.data.clone() for p in model.final_parameters()]
+                model.reset_final_parameters()
+                print(known_class_ids)
+                for i, params in enumerate(model.final_parameters()):
+                    if params.dim() == 1:  # bias vector
+                        params.data[known_class_ids] = saved_params[i][known_class_ids]
+                    elif params.dim() == 2:  # weight matrix
+                        params.data[known_class_ids, :] = saved_params[i][known_class_ids, :]
+                    else:
+                        NotImplementedError("Parameter dim > 2 ?")
+                del saved_params  # Explicit cleanup!?
+        else:
+            raise NotImplementedError("Unknown --start arg: '%s'" % args.start)
+
+        known_classes |= new_classes
+        print(f"Known classes at time {current_year}:", known_classes)
+
+        if has_parameters:
+            # Build a fresh optimizer in both cases: warm or cold
+            # Use rescaled lr and wd
+            if args.model == 'node2vec':
+                # Use SparseAdam for node2vec to speed things up
+                optimizer = torch.optim.SparseAdam(model.parameters(),
+                                                   lr=args.lr)
+            else:
+                optimizer = torch.optim.Adam(model.parameters(),
+                                             lr=args.lr * args.rescale_lr,
+                                             weight_decay=args.weight_decay * args.rescale_wd)
+        if args.model == 'mostfrequent':
+            if epochs > 0:
+                # Re-fit only if uptraining is in general allowed!
+                model.fit(None, subg_labels[train_nid])
+
+            acc, f1, _ = evaluate(model,
+                              subg,
+                              subg_features,
+                              subg_labels,
+                              mask=test_nid,
+                              compute_loss=False)
+        elif args.model == 'node2vec':
+            train_node2vec(model, optimizer, epochs=epochs,
+                           batch_size=args.n2v_batch_size,
+                           shuffle=True,
+                           num_workers=args.n2v_num_workers)
+            acc = evaluate_node2vec(model, subg_labels, train_nid, test_nid)
+
+        elif args.model == "graphsaint":
+            if epochs > 0:
+                print("Training SAINT inductively")
+                train_saint(model,
+                            optimizer,
+                            subg,
+                            subg_features,
+                            subg_labels,
+                            sampling=args.sampling,
+                            mask=None,
+                            epochs=epochs,
+                            weights=weights,
+                            walk_length=args.walk_length,
+                            batch_size=args.batch_size,
+                            coverage=args.saint_coverage,
+                            n_jobs=saint_njobs,
+                            device=device)
+            subg, subg_features, subg_labels, subg_years, train_nid, test_nid = prepare_data_for_year(graph,
+                                                                                                      features,
+                                                                                                      labels,
+                                                                                                      years,
+                                                                                                      current_year,
+                                                                                                      args.history,
+                                                                                                      device=device,
