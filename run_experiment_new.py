@@ -407,3 +407,151 @@ def main(args):
         else:
             train_task = None
             task = batch[0]
+        current_year = task.task_id
+
+        print("Batch:", batch)
+        print("Task:", task)
+        print("Train mask:", task.train_mask.size())
+        print("Test mask:", task.test_mask.size())
+        print("Feats:", task.x.size())
+        print("Labels:", task.y.size())
+
+        if args.decay is not None:
+            if args.inductive:
+                raise NotImplementedError("Decay only implemented for transductive learning")
+            # Use decay factor to weight the loss function based on time steps t
+            if use_sampling:
+                raise NotImplementedError("Decay can only be used without sampling")
+            weights = compute_weights(task.task_ids[task.train_mask], args.decay, normalize=True).to(device)
+        else:
+            weights = None
+
+        # Do the pretraining on the first history window
+        # with `initial_epochs` instead of `annual_epochs`
+        epochs = args.initial_epochs if t == 0 else args.annual_epochs
+        print(f"Training {epochs} epochs for task {t+1} (year {current_year})")
+
+        print(f"Known classes at time {current_year}:", known_classes)
+        # Find new classes
+        if args.inductive:
+            # Task is used completely for training
+            new_classes = set(train_task.y.numpy()) - known_classes
+            # unseen_classes = set(task.y.numpy()) - known_classes - new_classes
+        else:
+            new_classes = set(task.y[task.train_mask].numpy()) - known_classes
+            # unseen_classes = set(task.y[task.test_mask].numpy()) - known_classes - new_classes
+
+        print(f"New classes at train time {current_year}:", new_classes)
+
+        # Perform a restart (beginning with 2nd task)
+        if t > 0:
+            restart(model, args.start, known_classes, new_classes)
+        # Add new classes to known classes
+        known_classes |= new_classes
+
+        # All classes that are not in the training set of t are unseen
+        unseen_classes = all_classes - known_classes
+        print(f"Unseen classes at test time {current_year}:", unseen_classes)
+
+        test_loss = None  # fall-back if evaluate model doesn't emit loss
+
+        if args.model == 'mostfrequent':
+            assert args.subsample_train is None, "MostFrequent not impl. for subsample train"
+            assert args.open_learning is None, "Open Learning not impl. for mostfrequent"
+            assert args.inductive
+            if epochs > 0:
+                # Re-fit only if uptraining is in general allowed!
+                model.fit(None, train_task.y)
+            del train_task
+            scores = evaluate(model,
+                              task.graph(),
+                              task.x,
+                              task.y,
+                              mask=task.test_mask,
+                              compute_loss=False)
+            acc, f1 = scores['accuracy'], scores['f1_macro']
+        elif args.model == 'node2vec':
+            assert args.subsample_train is None, "MostFrequent not impl. for subsample train"
+            assert not args.inductive, "Node2vec can only be applied transductively"
+            assert args.open_learning is None, "Open Learning not impl. for node2vec"
+            train_node2vec(model, optimizer, epochs=epochs,
+                           batch_size=args.n2v_batch_size,
+                           shuffle=True,
+                           num_workers=args.n2v_num_workers)
+            acc = evaluate_node2vec(model, task.y, task.train_mask, task.test_mask)
+
+        elif args.model == "graphsaint":
+            # DON'T shift to GPU for graphsaint, it WILL fail
+            assert args.inductive, "GraphSAINT is only implemented for the inductive case"
+            assert args.subsample_train is None, "Subsample Train (label rate) not impl. for GraphSAINT"
+            assert args.open_learning is None, "Open Learning not impl. for GraphSAINT"
+            train_saint(model,
+                        optimizer,
+                        train_task.graph(),
+                        train_task.x,
+                        train_task.y,
+                        sampling=args.sampling,
+                        mask=None,
+                        epochs=epochs,
+                        weights=weights,
+                        walk_length=args.walk_length,
+                        batch_size=args.batch_size,
+                        coverage=args.saint_coverage,
+                        n_jobs=1,
+                        device=device)
+            del train_task
+            torch.cuda.empty_cache()
+            if args.evaluate_saint_on_cpu:
+                # Shift data toGPU
+                model = model.cpu()
+                print("Evaluating SAINT on CPU")
+            else:
+                task = task.to(device)
+                # Shift model to CPU
+            acc, f1, test_loss = evaluate_saint(model,
+                                    task.graph(),
+                                    task.x,
+                                    task.y,
+                                    mask=task.test_mask,
+                                    compute_loss=True)
+            if args.evaluate_saint_on_cpu:
+                # Shift model back to gpu
+                model = model.to(device)
+            gc.collect()
+            torch.cuda.empty_cache()
+        else:
+            if args.inductive:
+                assert args.subsample_train is None, "Inductive not impl. for subsample train"
+                # Train on t-1
+                train_task = train_task.to(device)
+                train(model,
+                      optimizer,
+                      train_task.graph(),
+                      train_task.x,
+                      train_task.y,
+                      mask=None,
+                      epochs=epochs,
+                      weights=weights,
+                      backend=backend,
+                      open_learning_model=olg_model)
+                del train_task
+                gc.collect()
+                torch.cuda.empty_cache()
+
+            # Put current task on device
+            task = task.to(device)
+
+            if not args.inductive:
+                # Train on train_mask of current task
+                train(model,
+                      optimizer,
+                      task.graph(),
+                      task.x,
+                      task.y,
+                      mask=task.train_mask,
+                      epochs=epochs,
+                      weights=weights,
+                      backend=backend,
+                      open_learning_model=olg_model)
+
+            # acc, f1, test_loss = evaluate(model,  # <- old
