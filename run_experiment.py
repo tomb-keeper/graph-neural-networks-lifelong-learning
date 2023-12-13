@@ -574,3 +574,138 @@ def main(args):
                                                                                                       current_year,
                                                                                                       args.history,
                                                                                                       device=device,
+                                                                                                      backend=backend)
+
+            acc, f1, _ = evaluate_saint(model,
+                                    subg,
+                                    subg_features,
+                                    subg_labels,
+                                    mask=test_nid,
+                                    compute_loss=False)
+        else:
+            if epochs > 0:
+                train(model,
+                      optimizer,
+                      subg,
+                      subg_features,
+                      subg_labels,
+                      mask=train_nid,
+                      epochs=epochs,
+                      weights=weights,
+                      backend=backend)
+
+            acc, f1, _ = evaluate(model,
+                              subg,
+                              subg_features,
+                              subg_labels,
+                              mask=test_nid,
+                              compute_loss=False,
+                              backend=backend)
+        print(f"[{current_year} ~ Epoch {epochs}] Test Accuracy: {acc:.4f}")
+        results_df = attach_score(results_df, current_year.item(), epochs, acc, f1)
+        # input() # debug purposes
+        # DROP ALL STUFF COMPUTED FOR CURRENT WINDOW (no memory leaks)
+        del subg
+        del subg_features
+        del subg_labels
+        del subg_years
+        del train_nid
+        del test_nid
+        del data
+        gc.collect()
+
+        # for obj in gc.get_objects():
+        #     try:
+        #         if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
+        #             print(type(obj), obj.size())
+        #     except:
+        #         pass
+        # input()
+        # torch.cuda.empty_cache()
+
+    if args.save is not None:
+        print("Saving final results to", args.save)
+        appendDFToCSV_void(results_df, args.save)
+
+
+DATASET_PATHS = {
+    'dblp-easy': os.path.join('data', 'dblp-easy'),
+    'dblp-hard': os.path.join('data', 'dblp-hard'),
+    'pharmabio': os.path.join('data', 'pharmabio'),
+    'dblp-full': os.path.join('data', 'dblp-full')
+}
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model', type=str, help="Specify model", default='gs-mean',
+                        choices=['mlp', 'gs-mean', 'mostfrequent',
+                                 'egcn', 'gat', 'jknet', 'graphsaint',
+                                 'node2vec', 'sgnet'])
+    parser.add_argument('--sampling', type=str, choices=['rw', 'node', 'edge'],
+                        default=None)
+    parser.add_argument('--variant', type=str, default='',
+                        help="Model variant, if model is GraphSAINT, specifies the Geometric base model")
+    parser.add_argument('--dataset', type=str, help="Specify the dataset", choices=list(DATASET_PATHS.keys()),
+                        default='pharmabio')
+    parser.add_argument('--t_start', type=int,
+                        help="The first evaluation time step. Default is 2004 for DBLP-{easy,hard} and 1999 for PharmaBio")
+
+    parser.add_argument('--n_layers', type=int,
+                        help="Number of layers/hops", default=2)
+    parser.add_argument('--n_hidden', type=int,
+                        help="Model dimension", default=64)
+    parser.add_argument('--lr', type=float,
+                        help="Learning rate", default=0.01)
+    parser.add_argument('--weight_decay', type=float,
+                        help="Weight decay", default=0.0)
+    parser.add_argument('--dropout', type=float,
+                        help="Dropout probability", default=0.5)
+
+    parser.add_argument('--initial_epochs', type=int,
+                        help="Train this many initial epochs", default=0)
+    parser.add_argument('--annual_epochs', type=int,
+                        help="Train this many epochs per year", default=200)
+    parser.add_argument('--history', type=int,
+                        help="How many years of data to keep in history", default=100)
+
+    parser.add_argument('--gat_out_heads',
+                        help="How many output heads to use for GATs", default=1, type=int)
+    parser.add_argument('--rescale_lr', type=float,
+                        help="Rescale factor for learning rate and weight decay after pretraining", default=1.)
+    parser.add_argument('--rescale_wd', type=float,
+                        help="Rescale factor for learning rate and weight decay after pretraining", default=1.)
+    parser.add_argument('--seed', type=int, default=0)
+    parser.add_argument('--num_neighbors', type=int, default=1,
+                        help="How many neighbors for control variate sampling")
+    parser.add_argument('--limit', type=int, default=None,
+                        help="Debug mode, limit number of papers to load")
+    parser.add_argument('--batch_size', type=str, default="1000",
+                        help="Number of seed nodes per batch for sampling")
+    parser.add_argument('--test_batch_size', type=int, default=10000,
+                        help="Test batch size (testing is done on cpu)")
+    parser.add_argument('--num_workers', type=int, default=8, help="How many threads to use for sampling")
+    parser.add_argument('--limited_pretraining', default=False, action="store_true",
+                        help="Perform pretraining on the first history window.")
+    parser.add_argument('--decay', default=None, type=float, help="Paramater for exponential decay loss smoothing")
+    parser.add_argument('--save_intermediate', default=False, action="store_true",
+                        help="Save intermediate results per year")
+    parser.add_argument('--save', default=None, help="Save results to this file")
+    parser.add_argument('--start', default='legacy-warm',
+                        choices=['cold', 'warm', 'hybrid', 'legacy-cold', 'legacy-warm'],
+                        help="Cold retrain from scratch or use warm start.")
+    parser.add_argument("--walk_length", default=2, type=int, help="Walk length for GraphSAINT random walk sampler")
+    parser.add_argument("--saint_coverage", default=500, type=int, help="Compute normalization statistics with this much coverage")
+    parser.add_argument("--saint_njobs", type=int, default=1, help="Number of jobs to sample for GraphSAINT")
+    parser.add_argument("--backend", choices=["dgl", "geometric"], help="Backend to use", default='dgl')
+
+    add_node2vec_args(parser)
+
+    ARGS = parser.parse_args()
+
+
+    if ARGS.batch_size.isdigit():
+        ARGS.batch_size = int(ARGS.batch_size)
+        print("Using an absolute batch size of", ARGS.batch_size, "for GraphSAINT")
+    else:
+        ARGS.batch_size = float(ARGS.batch_size)
+        print("Using a relative batch size of", ARGS.batch_size, "for GraphSAINT")
