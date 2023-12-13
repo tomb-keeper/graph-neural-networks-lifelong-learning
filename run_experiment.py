@@ -709,3 +709,49 @@ if __name__ == '__main__':
     else:
         ARGS.batch_size = float(ARGS.batch_size)
         print("Using a relative batch size of", ARGS.batch_size, "for GraphSAINT")
+
+
+    if ARGS.save is None:
+        print("**************************************************")
+        print("*** Warning: results will not be saved         ***")
+        print("*** consider providing '--save <RESULTS_FILE>' ***")
+        print("**************************************************")
+
+    # Handle dataset argument to get path to data
+    try:
+        ARGS.data_path = DATASET_PATHS[ARGS.dataset]
+    except KeyError:
+        print("Dataset key not found, trying to interprete as raw path")
+        ARGS.data_path = ARGS.dataset
+    print("Using dataset with path:", ARGS.data_path)
+
+    # Handle t_start argument
+    if ARGS.t_start is None:
+        try:
+            ARGS.t_start = {
+                'dblp-easy': 2004,
+                'dblp-hard': 2004,
+                'pharmabio': 1999,
+                'dblp-full': 2004
+            }[ARGS.dataset]
+            print("Using t_start =", ARGS.t_start)
+        except KeyError:
+            print("No default for dataset '{}'. Please provide '--t_start'.".format(ARGS.dataset))
+            exit(1)
+
+    # Backward compatibility:
+    # current implementation actually uses 'pretrain_until'
+    # as last timestep / year *BEFORE* t_start
+    ARGS.pretrain_until = ARGS.t_start - 1
+
+
+    # Sanity checks #
+    if ARGS.model == 'node2vec':
+        # Sanity checks
+        if 'warm' in ARGS.start:
+            raise NotImplementedError("Node2vec with warm starts is not yet supported")
+        else:
+            ARGS.start = 'legacy-cold'
+            print(f"Using '{ARGS.start}' restart mode for Node2Vec.")
+
+    main(ARGS)
