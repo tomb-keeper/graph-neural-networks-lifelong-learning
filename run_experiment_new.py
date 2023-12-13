@@ -555,3 +555,156 @@ def main(args):
                       open_learning_model=olg_model)
 
             # acc, f1, test_loss = evaluate(model,  # <- old
+
+            if args.save_logits_dir is not None:
+                save_logits = os.path.join(args.save_logits_dir, "t%02d" % t)
+            else:
+                save_logits = None
+
+            scores = evaluate(model,
+                              task.graph(),
+                              task.x,
+                              task.y,
+                              mask=task.test_mask,
+                              compute_loss=True,
+                              backend=backend,
+                              open_learning_model=olg_model,
+                              known_classes=known_classes,
+                              unseen_classes=unseen_classes,
+                              save_logits=save_logits)
+
+        # print(f"[{current_year} ~ Epoch {epochs}] Test Accuracy: {acc:.4f}")
+        print(f"[{current_year} ~ Epoch {epochs}] Scores: {scores}")
+
+        assert 'year' not in scores
+        assert 'epoch' not in scores
+        scores['task'] = current_year
+        scores['epoch'] = epochs
+
+        # results_df = attach_score(results_df, current_year, epochs, scores)
+
+        rw.add_result(scores)
+
+        if USE_WANDB:
+            # Prefix with 'test/' to improve structure in wandb dashboard
+            log_dict = {'test/'+k: v for k, v in scores.items()}
+            log_dict["task_id"] = current_year
+            log_dict["task_index"] = t
+            wandb.log(log_dict)
+
+        # input() # debug purposes
+        # DROP ALL STUFF COMPUTED FOR CURRENT WINDOW (no memory leaks)
+        del task
+        gc.collect()
+        torch.cuda.empty_cache()
+
+        # Memory leak debugging, not needed.
+        # for obj in gc.get_objects():
+        #     try:
+        #         if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
+        #             print(type(obj), obj.size())
+        #     except:
+        #         pass
+        # input()
+
+    if USE_WANDB:
+        # This makes WandB compute summary metrics for accuracy and f1 macro
+        # including the average!
+        # TODO: be careful when more than one accuracy per task is stored in results
+        # (currently not a problem, as we only store one set of scores per task)
+        wandb.run.summary["test/avg_accuracy"] = rw.data["accuracy"].values.mean()
+        wandb.run.summary["test/sd_accuracy"] = rw.data["accuracy"].values.std(ddof=1)
+        wandb.run.summary["test/avg_f1_macro"] = rw.data["f1_macro"].values.mean()
+        wandb.run.summary["test/sd_f1_macro"] = rw.data["f1_macro"].values.std(ddof=1)
+
+        wandb.run.summary["test/avg_open_f1_macro"] = rw.data["open_f1_macro"].values.mean()
+        wandb.run.summary["test/sd_open_f1_macro"] = rw.data["open_f1_macro"].values.std(ddof=1)
+        wandb.run.summary["test/avg_open_mcc"] = rw.data["open_mcc"].values.mean()
+        wandb.run.summary["test/sd_open_mcc"] = rw.data["open_mcc"].values.std(ddof=1)
+        # wandb.run.summary.update()
+
+        wandb.run.summary["test/open_tp"] = rw.data["open_tp"].values.sum()
+        wandb.run.summary["test/open_tn"] = rw.data["open_tn"].values.sum()
+        wandb.run.summary["test/open_fp"] = rw.data["open_fp"].values.sum()
+        wandb.run.summary["test/open_fn"] = rw.data["open_fn"].values.sum()
+
+    if args.save is not None:
+        print("Saving final results to", args.save)
+        # appendDFToCSV_void(results_df, args.save)
+
+        rw.write(args.save)
+
+
+DATASET_PATHS = {
+    'dblp-easy': os.path.join('data', 'dblp-easy'),
+    'dblp-hard': os.path.join('data', 'dblp-hard'),
+    'pharmabio': os.path.join('data', 'pharmabio'),
+    'dblp-full': os.path.join('data', 'dblp-full')
+}
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model', type=str, help="Specify model", default='gs-mean',
+                        choices=['mlp', 'gs-mean', 'gcn_cv_sc', 'mostfrequent',
+                                 'egcn', 'gat', 'gcn', 'jknet-sageconv', 'jknet-graphconv', 'graphsaint',
+                                 'node2vec', 'sgnet'])
+    parser.add_argument('--sampling', type=str, choices=['rw', 'node', 'edge'],
+                        default=None, help="Sampling strategy. Only for GraphSAINT")
+    parser.add_argument('--variant', type=str, default='',
+                        help="Model variant, if model is GraphSAINT, specifies the Geometric base model")
+    parser.add_argument('--dataset', type=str, help="Specify the dataset", # choices=list(DATASET_PATHS.keys()),
+                        default='pharmabio')
+    parser.add_argument('--t_start', type=int,
+                        help="The first evaluation time step. Default is 2004 for DBLP-{easy,hard} and 1999 for PharmaBio")
+
+    parser.add_argument('--n_layers', type=int,
+                        help="Number of layers/hops", default=2)
+    parser.add_argument('--n_hidden', type=int,
+                        help="Model dimension", default=64)
+    parser.add_argument('--lr', type=float,
+                        help="Learning rate", default=0.01)
+    parser.add_argument('--weight_decay', type=float,
+                        help="Weight decay", default=0.0)
+    parser.add_argument('--dropout', type=float,
+                        help="Dropout probability", default=0.5)
+
+    parser.add_argument('--initial_epochs', type=int, help="Train this many epochs on first task (defaults to annual epochs)", default=None)
+    parser.add_argument('--annual_epochs', type=int, help="Train this many epochs on all subsequent tasks", default=200)
+    parser.add_argument('--history', type=int,
+                        help="How many years of data to keep in history", default=100)
+
+    parser.add_argument('--gat_out_heads',
+                        help="How many output heads to use for GATs", default=1, type=int)
+    parser.add_argument('--rescale_lr', type=float,
+                        help="Rescale factor for learning rate and weight decay after pretraining", default=1.)
+    parser.add_argument('--rescale_wd', type=float,
+                        help="Rescale factor for learning rate and weight decay after pretraining", default=1.)
+    parser.add_argument('--seed', type=int, default=0)
+    parser.add_argument('--num_neighbors', type=int, default=1,
+                        help="How many neighbors for control variate sampling")
+    parser.add_argument('--limit', type=int, default=None,
+                        help="Debug mode, limit number of papers to load")
+    parser.add_argument('--batch_size', type=str, default="1000",
+                        help="Number of seed nodes per batch for sampling")
+    parser.add_argument('--test_batch_size', type=int, default=10000,
+                        help="Test batch size (testing is done on cpu)")
+    # parser.add_argument('--limited_pretraining', default=False, action="store_true",
+    #                     help="Perform pretraining on the first history window.")
+    parser.add_argument('--decay', default=None, type=float, help="Paramater for exponential decay loss smoothing")
+    parser.add_argument('--save_intermediate', default=False, action="store_true",
+                        help="Save intermediate results per year")
+    parser.add_argument('--save', default=None, help="Save results to this file")
+    parser.add_argument('--start', default='legacy-warm',
+                        choices=['cold', 'warm', 'hybrid', 'legacy-cold', 'legacy-warm'],
+                        help="Cold retrain from scratch or use warm start.")
+    parser.add_argument("--walk_length", default=2, type=int, help="Walk length for GraphSAINT random walk sampler")
+    parser.add_argument("--saint_coverage", default=0, type=int)
+    parser.add_argument("--backend", choices=["dgl", "geometric"], help="Backend to use", default='dgl')
+    parser.add_argument("--inductive", default=False, action='store_true', help="Train on task t-1, then eval on test set of task t")
+    parser.add_argument("--only_first_task", default=False, action='store_true', help="Train only on first task (debug purposes)")
+    parser.add_argument("--only_count_params", default=False, action='store_true', help="Print number of parameters and exit (debug purposes)")
+    parser.add_argument("--evaluate_saint_on_cpu", default=False, action='store_true', help="Run the eval step of GraphSAINT on CPU")
+    parser.add_argument('--comment', type=str, default='', help="Some comment for logging purposes.")
+    parser.add_argument('--label_rate', type=float, default=None, help="Label rate (needs to be preprocessed)")
+    parser.add_argument('--save_logits_dir', default=None, help="Save logits and targets for each task")
+    add_node2vec_args(parser)
