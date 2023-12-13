@@ -247,3 +247,163 @@ def build_model(args, in_feats, n_hidden, n_classes, device, n_layers=1, backend
             model = SGNet(in_feats, n_classes, k=n_layers, cached=True, bias=True, norm=None).to(device)
         else:
             raise NotImplementedError(f"Unknown model spec 'f{model_spec} for backend {backend}")
+    else:
+        raise NotImplementedError(f"Unknown backend: {backend}")
+
+    return model
+
+
+def build_optimizer(args, model):
+    if args.model in ['most_frequent']:
+        # for models that don't need an optimizer
+        return None
+
+    if args.model == 'node2vec':
+        # Use SparseAdam for node2vec to speed things up
+        optimizer = torch.optim.SparseAdam(model.parameters(),
+                                           lr=args.lr * args.rescale_lr)
+    else:
+        optimizer = torch.optim.Adam(model.parameters(),
+                                     lr=args.lr * args.rescale_lr,
+                                     weight_decay=args.weight_decay * args.rescale_wd)
+    return optimizer
+
+def count_params(model):
+   return sum(np.product(p.size()) for p in model.parameters())
+
+def restart(model, mode, known_classes: set, new_classes: set):
+    if mode == 'cold' or (mode == 'hybrid' and new_classes):
+        # NEW version, equivalent to legacy-cold, but more efficient
+        model.reset_parameters()
+    elif mode == 'warm':
+        # Skip for first task (does not make sense and makes problem for SGNET)
+        if new_classes:
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~ New classes encountered... ~~~~~~")
+            print("~~~~~~ doing partial warm reinit! ~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            # If there are new classes:
+            # 1) Save parameters of final layer
+            # 2) Reinit parameters of final layer
+            # 3) Copy saved parameters to new final layer
+            known_class_ids = torch.LongTensor(list(known_classes))
+            saved_params = [p.data.clone() for p in model.final_parameters()]
+            model.reset_final_parameters()
+            print("[Debug] known_class_ids during restart:", known_class_ids)
+            for i, params in enumerate(model.final_parameters()):
+                if params.dim() == 1:  # bias vector
+                    params.data[known_class_ids] = saved_params[i][known_class_ids]
+                elif params.dim() == 2:  # weight matrix
+                    params.data[known_class_ids, :] = saved_params[i][known_class_ids, :]
+                else:
+                    NotImplementedError("Parameter dim > 2 ?")
+            # del saved_params  # Explicit cleanup!?
+    else:
+        raise NotImplementedError("Unknown --start arg: '%s'" % mode)
+    return model
+
+def zero_unseen_classes(model, unseen_classes: set):
+    print(f"Setting params to zero for {len(unseen_classes)} classes")
+    unseen_class_ids = torch.LongTensor(list(unseen_classes))
+    for params in model.final_parameters():
+        if params.dim() == 1:  # bias vector
+            params.data[unseen_class_ids] = -1e12  # big negative bias
+        elif params.dim() == 2:  # weight matrix
+            params.data[unseen_class_ids, :] = 0   # zero weights
+        else:
+            NotImplementedError("Parameter dim > 2 ?")
+
+    return model
+
+
+
+
+
+def main(args):
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    use_sampling = args.model in ['gcn_cv_sc']
+    backend = args.backend
+
+    print("Using backend:", backend)
+
+    # Device setup
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+    if args.model == 'mostfrequent':
+        device = torch.device("cpu")
+
+    # LEGACY CODE, not used anymore
+    # if args.model in ['graphsaint']:
+    #     print("///////////////////")
+    #     print("//// inductive ////")
+    #     print("///////////////////")
+    #     # Train completely on Task t-1
+    #     globals_device = torch.device("cpu")
+    #     assert args.inductive
+    # else:
+    #     print("//////////////////////")
+    #     print("//// transductive ////")
+    #     print("//////////////////////")
+    #     globals_device = device
+    #     inductive = False
+
+    # Assume preprocessed dataset is in subdir of dataset
+    print("Expecting preprocessed data at", args.data_path)
+    dataset = LifelongNodeClassificationDataset(args.data_path,
+                                                inductive=args.inductive)
+    print(dataset)
+    print(f"[t_min, tmax] = [{dataset.t_min}, {dataset.t_max}]")
+    print(f"t_zero in dataset = {dataset.t_zero} (should be the one before t_start)")
+    assert dataset.t_zero == args.t_start - 1, "Supplied t_start -1 is not equal to t_zero of dataset"
+    assert dataset.history_size == args.history, "History sizes do not match"
+    assert dataset.backend == args.backend, "Backends do not match"
+
+    n_classes = dataset.num_classes
+    in_feats = dataset.num_features
+    n_hidden = args.n_hidden
+
+    model = build_model(args, in_feats, n_hidden, n_classes, device,
+                        n_layers=args.n_layers, backend=backend)
+    if args.model == 'gcn_cv_sc':
+        # unzip training and inference models
+        model, infer_model = model
+    print(model)
+    optimizer = build_optimizer(args, model)
+
+    if USE_WANDB:
+        wandb.watch(model)
+
+    num_params = count_params(model) if optimizer is not None else 0
+    print("#params:", num_params)
+    if args.only_count_params:
+        exit(0)
+
+
+    rw = CSVResultsWriter(args)
+
+    known_classes = set()
+    all_classes = set(range(dataset.num_classes))
+    taskloader = torch.utils.data.DataLoader(dataset, shuffle=False,
+                                             batch_size=1,
+                                             collate_fn=collate_tasks)
+
+    if args.open_learning is not None:
+        olg_model = open_learning.build(args, num_classes=n_classes)
+        print("Open Learning Model:", olg_model)
+    else:
+        # backward compat
+        olg_model = None
+
+    for t, batch in enumerate(taskloader):
+        if args.only_first_task and t > 0:
+            print("Finished with first task, exiting.")
+            break
+
+        if args.inductive:
+            train_task, task = batch[0]
+        else:
+            train_task = None
+            task = batch[0]
