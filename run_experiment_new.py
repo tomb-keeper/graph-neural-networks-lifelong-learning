@@ -708,3 +708,75 @@ if __name__ == '__main__':
     parser.add_argument('--label_rate', type=float, default=None, help="Label rate (needs to be preprocessed)")
     parser.add_argument('--save_logits_dir', default=None, help="Save logits and targets for each task")
     add_node2vec_args(parser)
+
+    open_learning.add_args(parser)
+
+    ARGS = parser.parse_args()
+
+    if USE_WANDB:
+        wandb.init(project="lifelong-learning")
+        wandb.config.update(ARGS)
+
+
+    if ARGS.initial_epochs is None:
+        ARGS.initial_epochs = ARGS.annual_epochs
+
+
+    if ARGS.batch_size.isdigit():
+        ARGS.batch_size = int(ARGS.batch_size)
+        print("Using an absolute batch size of", ARGS.batch_size, "for GraphSAINT")
+    else:
+        ARGS.batch_size = float(ARGS.batch_size)
+        print("Using a relative batch size of", ARGS.batch_size, "for GraphSAINT")
+
+
+    if ARGS.save is None:
+        print("**************************************************")
+        print("*** Warning: results will not be saved         ***")
+        print("*** consider providing '--save <RESULTS_FILE>' ***")
+        print("**************************************************")
+
+    # Handle dataset argument to get path to data
+
+    try:
+        dataset_path = DATASET_PATHS[ARGS.dataset]
+
+        preprocessed_dataset_identifier = lifelong_nodeclf_identifier(ARGS.dataset, ARGS.t_start-1, ARGS.history, ARGS.backend, label_rate=ARGS.label_rate)
+        ARGS.data_path = os.path.join(dataset_path, preprocessed_dataset_identifier)
+    except:
+        print(f"Dataset not in dict, assuming preprocessed dataset at: {ARGS.dataset}")
+        ARGS.data_path = ARGS.dataset
+    print("Using dataset with path:", ARGS.data_path)
+
+    # Handle t_start argument
+    if ARGS.t_start is None:
+        try:
+            ARGS.t_start = {
+                'dblp-easy': 2004,
+                'dblp-hard': 2004,
+                'pharmabio': 1999
+            }[ARGS.dataset]
+            print("Using t_start =", ARGS.t_start)
+        except KeyError:
+            print("No default for dataset '{}'. Please provide '--t_start'."
+                  .format(ARGS.dataset))
+            exit(1)
+
+    # Backward compatibility:
+    # current implementation actually uses 'pretrain_until'
+    # as last timestep / year *BEFORE* t_start
+    # ARGS.pretrain_until = ARGS.t_start - 1
+    # Not needed anymore
+
+    # Sanity checks #
+    if ARGS.model == 'node2vec':
+        # Sanity checks
+        if 'warm' in ARGS.start:
+            raise NotImplementedError("Node2vec w/ warm starts not supported")
+        else:
+            ARGS.start = 'legacy-cold'
+            print(f"Using '{ARGS.start}' restart mode for Node2Vec.")
+    elif ARGS.model == 'graphsaint':
+        assert ARGS.inductive, "GraphSAINT only works for inductive mode"
+
+    main(ARGS)
