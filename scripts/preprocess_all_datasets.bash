@@ -12,4 +12,13 @@ TZERO="2003"
 echo "Preprocessing $DATASET"
 for BACKEND in "geometric" "dgl"; do
     for HISTORY in "1" "3" "6" "25"; do
-        python3 preprocess_d
+        python3 preprocess_dataset.py $DATASET --t_zero $TZERO --backend $BACKEND --history $HISTORY
+    done
+done
+
+
+#################
+### DBLP-HARD ###
+#################
+DATASET="data/dblp-hard"
+TZ
