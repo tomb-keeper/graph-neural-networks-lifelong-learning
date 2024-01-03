@@ -9,4 +9,7 @@ set -e
 #################
 DATASET="data/dblp-easy"
 TZERO="2003"
-echo
+echo "Preprocessing $DATASET"
+for BACKEND in "geometric" "dgl"; do
+    for HISTORY in "1" "3" "6" "25"; do
+        python3 preprocess_d
