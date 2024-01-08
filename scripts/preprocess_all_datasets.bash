@@ -21,4 +21,8 @@ done
 ### DBLP-HARD ###
 #################
 DATASET="data/dblp-hard"
-TZ
+TZERO="2003"
+echo "Preprocessing $DATASET"
+for BACKEND in "geometric" "dgl"; do
+    for HISTORY in "1" "3" "6" "25"; do
+        python3 preprocess
