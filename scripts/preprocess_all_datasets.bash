@@ -33,4 +33,9 @@ done
 #################
 ### PHARMABIO ###
 #################
-DATASET="data/pharma
+DATASET="data/pharmabio"
+TZERO="1998"
+echo "Preprocessing $DATASET"
+for BACKEND in "geometric" "dgl"; do
+    for HISTORY in "1" "4" "8" "21"; do
+        python
