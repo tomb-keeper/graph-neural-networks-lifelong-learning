@@ -38,4 +38,8 @@ TZERO="1998"
 echo "Preprocessing $DATASET"
 for BACKEND in "geometric" "dgl"; do
     for HISTORY in "1" "4" "8" "21"; do
-        python
+        python3 preprocess_dataset.py $DATASET --t_zero $TZERO --backend $BACKEND --history $HISTORY
+    done
+done
+
+
