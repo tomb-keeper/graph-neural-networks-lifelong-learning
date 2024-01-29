@@ -30,4 +30,9 @@ echo "Preprocessing $DATASET"
 # for BACKEND in "geometric" "dgl"; do
 for HISTORY in "1" "3" "6" "25"; do
 	for LABELRATE in "0.1" "0.2" "0.3" "0.4" "0.5" "0.6" "0.7" "0.8" "0.9"; do
-		python3 preprocess_dataset.
+		python3 preprocess_dataset.py $DATASET --t_zero $TZERO --backend $BACKEND --history $HISTORY --basedir $OUTDIR --label_rate $LABELRATE
+	done
+done
+
+
+#################
