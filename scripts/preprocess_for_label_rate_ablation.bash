@@ -21,4 +21,11 @@ BACKEND="dgl"
 
 
 #################
-#
+### DBLP-HARD ###
+#################
+DATASET="data/dblp-hard"
+TZERO="2003"
+HISTORY=3
+echo "Preprocessing $DATASET"
+# for BACKEND in "geometric" "dgl"; do
+for 
