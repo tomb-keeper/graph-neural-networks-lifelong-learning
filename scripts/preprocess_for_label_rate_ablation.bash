@@ -28,4 +28,6 @@ TZERO="2003"
 HISTORY=3
 echo "Preprocessing $DATASET"
 # for BACKEND in "geometric" "dgl"; do
-for 
+for HISTORY in "1" "3" "6" "25"; do
+	for LABELRATE in "0.1" "0.2" "0.3" "0.4" "0.5" "0.6" "0.7" "0.8" "0.9"; do
+		python3 preprocess_dataset.
