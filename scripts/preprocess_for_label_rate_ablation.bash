@@ -36,3 +36,10 @@ done
 
 
 #################
+### PHARMABIO ###
+#################
+# DATASET="data/pharmabio"
+# TZERO="1998"
+# echo "Preprocessing $DATASET"
+# for BACKEND in "geometric" "dgl"; do
+#     for
