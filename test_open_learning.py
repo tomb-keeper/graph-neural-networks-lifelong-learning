@@ -9,4 +9,9 @@ def test_evaluation():
     unseen_classes = set()
     reject_mask = torch.zeros(labels.size(0), dtype=torch.bool)
     scores = open_learning.evaluate(labels, unseen_classes,
-                                   
+                                    predictions, reject_mask)
+
+    assert scores['open_mcc'] == 0.0
+    assert scores['open_f1_macro'] == 1.0
+
+    # Perfect prediction and perfect
