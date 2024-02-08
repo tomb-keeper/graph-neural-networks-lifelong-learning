@@ -14,4 +14,7 @@ def test_evaluation():
     assert scores['open_mcc'] == 0.0
     assert scores['open_f1_macro'] == 1.0
 
-    # Perfect prediction and perfect
+    # Perfect prediction and perfect rejection
+    labels = torch.tensor([0,1,2,3,5,6])
+    predictions = torch.tensor([0,1,2,3,5,6])
+    unseen_classes = set([5,6])
