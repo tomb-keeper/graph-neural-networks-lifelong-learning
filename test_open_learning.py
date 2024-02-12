@@ -28,4 +28,7 @@ def test_evaluation():
 
     # Perfect prediction but imperfect rejection
     labels = torch.tensor([0,1,2,3,5,6])
- 
+    predictions = torch.tensor([0,1,2,3,5,6])
+    unseen_classes = set([5,6])
+    reject_mask = torch.zeros(labels.size(0), dtype=torch.bool)
+    reject
