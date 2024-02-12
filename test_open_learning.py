@@ -31,4 +31,7 @@ def test_evaluation():
     predictions = torch.tensor([0,1,2,3,5,6])
     unseen_classes = set([5,6])
     reject_mask = torch.zeros(labels.size(0), dtype=torch.bool)
-    reject
+    reject_mask[[0,1]] = True
+    print(reject_mask)
+    scores = open_learning.evaluate(labels, unseen_classes,
+                                    pr
