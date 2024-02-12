@@ -23,4 +23,9 @@ def test_evaluation():
     scores = open_learning.evaluate(labels, unseen_classes,
                                     predictions, reject_mask)
 
-    assert scor
+    assert scores['open_mcc'] == 1.0
+    assert scores['open_f1_macro'] == 1.0
+
+    # Perfect prediction but imperfect rejection
+    labels = torch.tensor([0,1,2,3,5,6])
+ 
