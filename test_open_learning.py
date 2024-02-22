@@ -34,4 +34,10 @@ def test_evaluation():
     reject_mask[[0,1]] = True
     print(reject_mask)
     scores = open_learning.evaluate(labels, unseen_classes,
-                                    pr
+                                    predictions, reject_mask)
+
+    assert scores['open_mcc'] < 0.0
+    assert scores['open_f1_macro'] < 1.0
+
+    # Imperfect prediction but perfect rejection
+   
