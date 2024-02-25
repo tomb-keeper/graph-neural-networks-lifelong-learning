@@ -45,4 +45,8 @@ def test_evaluation():
     unseen_classes = set([5,6])
     reject_mask = torch.zeros(labels.size(0), dtype=torch.bool)
     reject_mask[[-1,-2]] = True  # Cheatz
-    scores = open_learning.evaluate(labels, u
+    scores = open_learning.evaluate(labels, unseen_classes,
+                                    predictions, reject_mask)
+
+    assert scores['open_mcc'] == 1.0
+    assert scores['ope
