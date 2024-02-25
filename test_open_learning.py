@@ -40,4 +40,7 @@ def test_evaluation():
     assert scores['open_f1_macro'] < 1.0
 
     # Imperfect prediction but perfect rejection
-   
+    labels = torch.tensor([0,1,2,3,5,6])
+    predictions = torch.tensor([1,2,3,4,5,6])
+    unseen_classes = set([5,6])
+    reject_mask = torch
