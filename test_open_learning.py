@@ -49,4 +49,4 @@ def test_evaluation():
                                     predictions, reject_mask)
 
     assert scores['open_mcc'] == 1.0
-    assert scores['ope
+    assert scores['open_f1_macro'] < 1.0
