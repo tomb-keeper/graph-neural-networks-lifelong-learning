@@ -255,3 +255,4 @@ class IncrementalTrainer:
             known_classes |= new_classes
 
 
+
