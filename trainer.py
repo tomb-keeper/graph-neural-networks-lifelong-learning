@@ -124,3 +124,134 @@ class IncrementalTrainer:
             subg = graph.subgraph(subg_nodes)
             subg.set_n_initializer(dgl.init.zero_initializer)
         elif self.backend == 'geometric':
+            subg, __edge_attr = tg.utils.subgraph(subg_nodes,
+                                                  graph, relabel_nodes=True)
+        else:
+            raise ValueError("Unkown backend: " + backend)
+
+        # Filter supplementary data for subgraph vertices
+        subg_features = self.features[subg_nodes]
+        subg_labels = self.labels[subg_nodes]
+        subg_timestamps = self.timestamps[subg_nodes]
+
+        # Prepare masks wrt *subgraph*
+        train_nid = torch.arange(subg_num_nodes)[subg_timestamps < t]
+        test_nid = torch.arange(subg_num_nodes)[subg_timestamps == t]
+
+        if exclude_class is not None:
+            train_nid = train_nid[subg_labels[train_nid] != exclude_class]
+            test_nid = test_nid[subg_labels[test_nid] != exclude_class]
+
+        print("[{}] #Training: {}".format(t, train_nid.size(0)))
+        print("[{}] #Test    : {}".format(t, test_nid.size(0)))
+        if device is not None:
+            if self.backend == 'geometric':
+                subg = subg.to(device)
+            subg_features = subg_features.to(device)
+            subg_labels = subg_labels.to(device)
+        return subg, subg_features, subg_labels, subg_timestamps, train_nid, test_nid
+
+    def _prepare_data_for_time_inductive(self, t, history, **kwargs):
+        train_g, train_feats, train_labels, train_timestamps, __, __ = self._prepare_data_for_time(t-1, history, **kwargs)
+        test_g, test_feats, test_labels, test_timestamps, __, test_mask = self._prepare_data_for_time(t, history, **kwargs)
+        return train_data, test_data
+
+    def restart(self, known_classes:set=None, new_classes:set=None):
+        """ Performs a restart in-between different time steps """
+        # TODO integrate hybrid strategy
+        if self.args.restart_mode == 'cold':
+            # cold restart -> reset all parameters
+            self.model.reset_parameters()
+        elif self.args.restart_mode == 'warm':
+            if known_classes and new_classes:
+                # If we have both known and new classes
+                # Copy all parameters for known classes
+                # and freshly initialize params for new classes
+                # **Models must implement `final_parameters()` and `reset_final_parameters()`**
+                known_class_ids = torch.LongTensor(list(known_classes))
+                saved_params = [p.data.clone() for p in self.model.final_parameters()]
+                self.model.reset_final_parameters()
+                for i, params in enumerate(self.model.final_parameters()):
+                    if params.dim() == 1:  # bias vector
+                        params.data[known_class_ids] = saved_params[i][known_class_ids]
+                    elif params.dim() == 2:  # weight matrix
+                        params.data[known_class_ids, :] = saved_params[i][known_class_ids, :]
+                    else:
+                        NotImplementedError("Parameter dim > 2 ?")
+            # Else do nothing, but keep model parameters as they are
+        else:
+            raise NotImplementedError("Unknown restart mode '%s':" % self.restarts)
+
+        # Reset the state of the optimizer
+        self.optimizer = self._build_optimizer()
+
+    def _training_step(self, g, feats, labels, mask=None, weights=None):
+        """ Perform one training step """
+        inputs = (g, feats) if self.backend == 'dgl' else (feats, g)
+        logits = self.model(*inputs)
+        reduction = 'none' if weights is not None else 'mean'
+
+        if mask is not None:
+            loss = F.cross_entropy(logits[mask], labels[mask], reduction=reduction)
+        else:
+            loss = F.cross_entropy(logits, labels, reduction=reduction)
+
+        if weights is not None:
+            loss = (loss * weights).sum()
+
+        # Step
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        return loss
+
+    def _train_epoch(self, *args, **kwargs):
+        # More flexible subclassing
+        return self._training_step(*args, **kwargs)
+
+    def train(self, g, feats, labels, mask=None, weights=None):
+        """ Train multiple epochs """
+        self.model.train()
+        for epoch in tqdm(range(self.args.num_train_epochs), desc="Epoch"):
+            loss = self._train_epoch(g, feats, labels, mask=mask)
+            print("Epoch {:d} | Loss: {:.4f}".format(epoch + 1, loss.detach().item()))
+
+    def evaluate(self, g, feats, labels, mask=None, compute_loss=True):
+        # TODO: Store results
+        self.model.eval()
+        with torch.no_grad():
+            inputs = (g, feats) if self.backend == 'dgl' else (feats, g)
+            logits = self.model(*inputs)
+
+            if mask is not None:
+                logits = logits[mask]
+                labels = labels[mask]
+
+            if compute_loss:
+                loss = F.cross_entropy(logits, labels).item()
+            else:
+                loss = None
+
+            if isinstance(logits, np.ndarray):
+                logits = torch.FloatTensor(logits)
+            __max_vals, max_indices = torch.max(logits.detach(), 1)
+            acc = (max_indices == labels).sum().float() / labels.size(0)
+            f1 = f1_score(labels.cpu(), max_indices.cpu(), average="macro")
+
+        return acc.item(), f1, loss
+
+    def train_and_evaluate_incremental(self, t_start, history):
+        """ Trains and evaluates incrementally starting at `t_start` (inclusive)"""
+        t_end = self.timestamps.max()
+        ts = torch.unique(self.timestamps[self.timestamps >= t_start], sorted=True)
+        known_classes = set()
+        for t in tqdm(ts, desc="Time"):
+            # subggraph
+            g, x, y, __, train_nid, test_nid = self._prepare_data_for_time(t, history)
+            new_classes = set(y[train_nid].cpu().numpy()) - known_classes
+            self.restart(known_classes, new_classes)
+            self.train(g, x, y, mask=train_nid, epochs=self.epochs_per_time)
+            acc, f1, loss = self.evaluate(g, x, y, mask=test_nid, compute_loss=True)
+            known_classes |= new_classes
+
+
