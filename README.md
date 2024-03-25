@@ -11,4 +11,4 @@ These papers serve as the main references for the concepts used in this project:
 
 ## Setup and Installation
 
-Detai
+Detailed instructions for setting up and installing the necessary dependencies are included. A Python virtual environment is recommended for this purpose. The main requirem
