@@ -11,4 +11,8 @@ These papers serve as the main references for the concepts used in this project:
 
 ## Setup and Installation
 
-Detailed instructions for setting up and installing the necessary dependencies are included. A Python virtual environment is recommended for this purpose. The main requirem
+Detailed instructions for setting up and installing the necessary dependencies are included. A Python virtual environment is recommended for this purpose. The main requirements are: pytorch, dgl, torch-geometric, numpy, scipy, pandas, matplotlib, seaborn and scikit-learn.
+
+## Datasets
+
+The datasets used in the 
