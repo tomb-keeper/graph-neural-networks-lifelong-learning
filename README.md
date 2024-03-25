@@ -15,4 +15,4 @@ Detailed instructions for setting up and installing the necessary dependencies a
 
 ## Datasets
 
-The datasets used in the 
+The datasets used in the paper are available [on zenodo](https://zenodo.org/record/3764770). They can be downloaded and used to test and reprod
