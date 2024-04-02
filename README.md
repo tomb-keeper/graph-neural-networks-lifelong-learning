@@ -19,4 +19,8 @@ The datasets used in the paper are available [on zenodo](https://zenodo.org/reco
 
 ## Experiments
 
-Scripts for running a single experiment as well as scripts for visualizing and tabulating the results are provided
+Scripts for running a single experiment as well as scripts for visualizing and tabulating the results are provided. We also provide scripts for preprocessing the data for multiple experiments.
+
+## Troubleshooting
+
+If you run into any issues while using this
