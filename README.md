@@ -23,4 +23,8 @@ Scripts for running a single experiment as well as scripts for visualizing and t
 
 ## Troubleshooting
 
-If you run into any issues while using this
+If you run into any issues while using this repository, feel free to create an issue and we'll try to assist you best we can.
+
+## Maintainers
+
+This repository is currently maintained by @tomb-keeper.
